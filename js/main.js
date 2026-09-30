@@ -652,6 +652,10 @@ function ignite(withSound) {
       document.body.classList.remove("is-loading");
       $$("[inert]").forEach((el) => el.removeAttribute("inert"));
       startFilm();
+      // Kommt man von einer Unterseite mit Sprungziel (z. B. ./#los), nach dem Aufbau dorthin
+      let ziel = null;
+      try { ziel = location.hash.length > 1 && document.querySelector(location.hash); } catch (err) {}
+      if (ziel) requestAnimationFrame(() => { ScrollTrigger.refresh(); ziel.scrollIntoView(); });
     }, "-=0.8");
 }
 $("#ignite").addEventListener("click", () => ignite(true));
