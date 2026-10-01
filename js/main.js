@@ -6,9 +6,7 @@ import { createStage } from "./stage.js";
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -76,7 +74,6 @@ function fillContent() {
     else img.removeAttribute("srcset");
     img.src = f.klein || src;
   });
-  if (!$("#vowPhoto")) $("#vow").classList.add("vow--text");
   // Sprachen der Fahr-Akademie aus der Konfiguration („A, B und C“)
   const sp = CONFIG.sprachen || [];
   if (sp.length) $$("[data-sprachen]").forEach((el) => { const w = sp.map((x) => "\u2068" + x + "\u2069"); el.textContent = w.length > 1 ? w.slice(0, -1).join(", ") + " und " + w[w.length - 1] : w[0]; });
@@ -88,91 +85,6 @@ function fillContent() {
     $$("#qrCode path").forEach((p) => p.setAttribute("fill", "#0b1115"));
   } catch (e) {}
 }
-
-/* ---------- Motorsound (wird im Browser erzeugt) ---------- */
-const engine = (() => {
-  let ctx = null, master, osc1, osc2, noiseGain, filter, on = false;
-  function build() {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return false;
-    ctx = new AC();
-    master = ctx.createGain();
-    master.gain.value = 0;
-    filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 380;
-    filter.Q.value = 4;
-    osc1 = ctx.createOscillator();
-    osc1.type = "sawtooth";
-    osc1.frequency.value = 34;
-    osc2 = ctx.createOscillator();
-    osc2.type = "square";
-    osc2.frequency.value = 68;
-    const g2 = ctx.createGain();
-    g2.gain.value = 0.3;
-    // leises Rauschen für Fahrtwind
-    const buf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-    const noise = ctx.createBufferSource();
-    noise.buffer = buf;
-    noise.loop = true;
-    const nf = ctx.createBiquadFilter();
-    nf.type = "bandpass";
-    nf.frequency.value = 700;
-    noiseGain = ctx.createGain();
-    noiseGain.gain.value = 0;
-    osc1.connect(filter);
-    osc2.connect(g2).connect(filter);
-    filter.connect(master);
-    noise.connect(nf).connect(noiseGain).connect(master);
-    master.connect(ctx.destination);
-    osc1.start(); osc2.start(); noise.start();
-    return true;
-  }
-  return {
-    start() {
-      if (!ctx && !build()) return;
-      ctx.resume();
-      on = true;
-      const t = ctx.currentTime;
-      master.gain.cancelScheduledValues(t);
-      master.gain.setValueAtTime(0, t);
-      master.gain.linearRampToValueAtTime(0.16, t + 0.25);
-      master.gain.linearRampToValueAtTime(0.07, t + 1.6);
-      osc1.frequency.setValueAtTime(26, t);
-      osc1.frequency.exponentialRampToValueAtTime(92, t + 0.55);
-      osc1.frequency.exponentialRampToValueAtTime(36, t + 1.6);
-      osc2.frequency.setValueAtTime(52, t);
-      osc2.frequency.exponentialRampToValueAtTime(184, t + 0.55);
-      osc2.frequency.exponentialRampToValueAtTime(72, t + 1.6);
-      filter.frequency.setValueAtTime(300, t);
-      filter.frequency.linearRampToValueAtTime(1300, t + 0.5);
-      filter.frequency.linearRampToValueAtTime(420, t + 1.6);
-    },
-    stop() {
-      if (!ctx) return;
-      on = false;
-      master.gain.setTargetAtTime(0, ctx.currentTime, 0.15);
-      setTimeout(() => { if (!on) ctx.suspend(); }, 800); // stumm heißt auch: nichts rechnen
-    },
-    speed(kmh) {
-      if (!ctx || !on) return;
-      const t = ctx.currentTime;
-      const r = clamp(kmh / 130, 0, 1);
-      // einfache „Gänge“: Drehzahl steigt und fällt je Gang
-      const gearPos = (kmh % 32) / 32;
-      const rpm = 36 + r * 30 + gearPos * 28;
-      osc1.frequency.setTargetAtTime(rpm, t, 0.12);
-      osc2.frequency.setTargetAtTime(rpm * 2, t, 0.12);
-      filter.frequency.setTargetAtTime(420 + r * 900, t, 0.2);
-      master.gain.setTargetAtTime(0.06 + r * 0.06, t, 0.2);
-      noiseGain.gain.setTargetAtTime(r * 0.05, t, 0.3);
-    },
-    get on() { return on; },
-    suspend(v) { if (ctx) v ? ctx.suspend() : on && ctx.resume(); }
-  };
-})();
 
 /* ---------- Bestenliste (Supabase, nur zwei öffentliche Funktionen) ---------- */
 const board = (() => {
@@ -370,7 +282,7 @@ function setupReviews() {
   let list = [];
   const B = CONFIG.bestenliste;
   if (!box) return;
-  if (!B || !B.url) { $("#stimmen").remove(); return; }
+  if (!B || !B.url) { $("#stimmen").remove(); $$("[data-kachel=stimmen]").forEach((k) => k.remove()); return; }
   const sterne = (b) => Math.max(1, Math.min(5, parseInt(b.sterne, 10) || 5));
   const card = (b, i) => {
     const el = document.createElement("article");
@@ -540,7 +452,7 @@ function setupReviews() {
         if (!o.w) return;
         if (!o.drag) {
           o.x += o.vx; o.vx *= 0.92;
-          if (!o.hover && !o.focus && !halt && now > o.until && Math.abs(o.vx) < 0.3) o.x += o.dir * 0.028 * dt; // rund 28 px pro Sekunde
+          if (!o.hover && !o.focus && !halt && now > o.until && Math.abs(o.vx) < 0.3) o.x += o.dir * 0.02 * dt; // rund 20 px pro Sekunde
         }
         // endlos: immer innerhalb einer Hälfte bleiben
         while (o.x > 0) o.x -= o.w;
@@ -553,7 +465,7 @@ function setupReviews() {
 
   box.innerHTML = '<p class="reviews__laden">Bewertungen werden geladen …</p>';
   // Bereich entfernen; die Seite wird kürzer, also Scroll-Auslöser neu berechnen
-  const weg = () => { if ($("#stimmen")) { $("#stimmen").remove(); ScrollTrigger.refresh(); } };
+  const weg = () => { $$("[data-kachel=stimmen]").forEach((k) => k.remove()); if ($("#stimmen")) { $("#stimmen").remove(); ScrollTrigger.refresh(); } };
   const laden = async () => {
     try {
       const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 10000);
@@ -578,7 +490,6 @@ function setupReviews() {
   addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(measure, 150); });
   const neu = () => list.length && build();
   wide.addEventListener ? wide.addEventListener("change", neu) : wide.addListener(neu);
-  gsap.from(box, { opacity: 0, y: 40, duration: 1.2, ease: "expo.out", scrollTrigger: { trigger: box, start: "top 90%" } });
 }
 
 /* ---------- Buchen: Umschalter Schaltung / Automatik ---------- */
@@ -608,13 +519,11 @@ function setupBooking() {
 
 
 /* ---------- Start ---------- */
-$$(".top, main").forEach((el) => el.setAttribute("inert", ""));
 fillContent();
 const chapters = $$("main section[data-kapitel]");
 const ids = chapters.map((c) => c.id);
 const stage = createStage(ids);
 stage.show("prolog");
-let lenis = null;
 
 // Inhaltsverzeichnis
 chapters.forEach((c, i) => {
@@ -624,64 +533,12 @@ chapters.forEach((c, i) => {
   $("span", li).textContent = c.dataset.titel;
   $("#menuList").append(li);
 });
+document.addEventListener("visibilitychange", () => stage.pause(document.hidden));
 
-// Vorspann
-const counter = { v: 0 };
-gsap.to(counter, {
-  v: 100, duration: reducedMotion ? 0.2 : 1.8, ease: "power2.inOut",
-  onUpdate: () => ($("#introCount").textContent = Math.round(counter.v)),
-  onComplete: () => {
-    $(".intro__count").style.opacity = 0;
-    const actions = $("#introActions");
-    actions.hidden = false;
-    gsap.from(actions.children, { y: 20, opacity: 0, duration: 0.8, stagger: 0.12, ease: "power3.out" });
-  }
-});
-let started = false;
-function ignite(withSound) {
-  if (started) return;
-  started = true;
-  if (withSound) { try { engine.start(); setSound(true); } catch (e) {} }
-  gsap.timeline()
-    .to(".intro__inner", { opacity: 0, scale: 0.96, duration: 0.5, ease: "power2.in" }, 0.3)
-    .set(".intro", { background: "transparent" })
-    .fromTo(".intro__curtain", { scaleY: 1 }, { scaleY: 0, duration: 1.2, ease: "expo.inOut" })
-    .to(".bars i", { scaleY: 0, duration: 1.4, ease: "expo.inOut" }, "-=0.9")
-    .add(() => {
-      $("#intro").remove();
-      document.body.classList.remove("is-loading");
-      $$("[inert]").forEach((el) => el.removeAttribute("inert"));
-      startFilm();
-      // Kommt man von einer Unterseite mit Sprungziel (z. B. ./#los), nach dem Aufbau dorthin
-      let ziel = null;
-      try { ziel = location.hash.length > 1 && document.querySelector(location.hash); } catch (err) {}
-      if (ziel) requestAnimationFrame(() => { ScrollTrigger.refresh(); ziel.scrollIntoView(); });
-    }, "-=0.8");
-}
-$("#ignite").addEventListener("click", () => ignite(true));
-$("#igniteMute").addEventListener("click", () => ignite(false));
-
-// Ton
-const soundBtn = $("#soundBtn");
-function setSound(on) {
-  soundBtn.setAttribute("aria-pressed", on ? "true" : "false");
-  $("b", soundBtn).textContent = on ? "an" : "aus";
-}
-soundBtn.addEventListener("click", () => { if (engine.on) { engine.stop(); setSound(false); } else { engine.start(); setSound(true); } });
-document.addEventListener("visibilitychange", () => { engine.suspend(document.hidden); stage.pause(document.hidden); });
-
-/* ---------- Der Film ---------- */
-function startFilm() {
-  if (!reducedMotion && finePointer) {
-    lenis = new window.Lenis({ lerp: 0.1, smoothWheel: true });
-    lenis.on("scroll", ScrollTrigger.update);
-    gsap.ticker.add((t) => lenis.raf(t * 1000));
-    gsap.ticker.lagSmoothing(0);
-  }
-  const scrollTo = (target) => {
-    if (lenis) lenis.scrollTo(target, { duration: 1.6 });
-    else document.querySelector(target).scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
-  };
+/* ---------- Die Seite ----------
+   Ruhig: normales Scrollen (kein Nachgleiten), Texte stehen still und sind sofort
+   lesbar. Bewegung gibt es nur im Hintergrund-Video und bei kleinen Rückmeldungen. */
+function start() {
   $$('a[href^="#"]').forEach((a) => a.addEventListener("click", (e) => {
     const id = a.getAttribute("href") || "";
     if (id[0] !== "#" || id.length < 2) return; // z. B. „In neuem Tab“ zeigt inzwischen auf eine Adresse
@@ -690,19 +547,14 @@ function startFilm() {
     if (!target) return;
     e.preventDefault();
     closeMenu();
-    scrollTo(id);
+    target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
+    history.replaceState(null, "", id);
   }));
 
   setupChapters();
-  setupProlog();
-  setupTitles();
-  setupFloats();
   setupTour();
   setupQuiz();
   setupVow();
-  setupShot();
-  setupDepth();
-  setupRoad();
   setupGame();
   setupReviews();
   setupSheets();
@@ -726,79 +578,8 @@ function setupChapters() {
         gsap.fromTo([num, name], { y: 8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: "power2.out" });
       }
     });
-    // gleicher Bereich wie oben: Anfang und Ende jedes Videos sind so auch zu sehen
-    ScrollTrigger.create({
-      trigger: c, start: i === 0 ? "top top" : "top 55%", end: i === chapters.length - 1 ? "bottom bottom" : "bottom 55%",
-      onUpdate: (self) => stage.progress(c.id, self.progress),
-      onRefresh: (self) => stage.progress(c.id, self.progress)
-    });
   });
   ScrollTrigger.create({ start: 0, end: "max", onUpdate: (self) => (bar.style.transform = `scaleX(${self.progress.toFixed(4)})`) });
-}
-
-/* Prolog: Satz für Satz, dann Licht */
-function setupProlog() {
-  const lines = $$(".prolog .prolog__line");
-  const shade = $("#stageShade");
-  const setDim = (v) => shade.style.setProperty("--dim", v.toFixed(3));
-  // Abdunklung der Bühne aus der Scrollposition berechnet – stimmt auch nach Neuladen,
-  // bei Direktlinks und in beide Richtungen: Prolog fast schwarz, bei „Ist es nicht.“
-  // geht das Licht an, in den Kapiteln leicht abgedunkelt, im Epilog heller.
-  const turn = $(".prolog__turn"), ruhe = $("#ruhe"), epilog = $("#epilog");
-  const dim = () => {
-    const vh = window.innerHeight;
-    if (epilog.getBoundingClientRect().top <= vh * 0.6) return 0.25;
-    if (ruhe.getBoundingClientRect().top <= vh * 0.8) return 0.45;
-    return 0.9 - 0.75 * clamp((vh * 0.9 - turn.getBoundingClientRect().top) / (vh * 0.7), 0, 1);
-  };
-  const update = () => setDim(dim());
-  update();
-  ScrollTrigger.create({ start: 0, end: "max", onUpdate: update, onRefresh: update });
-  if (reducedMotion) { lines.forEach((l) => (l.style.opacity = 1)); return; }
-  const tl = gsap.timeline({
-    scrollTrigger: { trigger: ".chapter--prolog", start: "top top", end: () => "+=" + window.innerHeight * 1.5, scrub: 0.6 }
-  });
-  lines.forEach((l, i) => {
-    // die erste Zeile steht schon da, wenn sich der Vorhang öffnet
-    if (i === 0) gsap.set(l, { opacity: 1, y: 0 });
-    else tl.fromTo(l, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5 }, i);
-    tl.to(l, { opacity: 0, y: -18, duration: 0.4 }, i + 0.75);
-  });
-  gsap.from(".prolog__turn > *", { y: 40, opacity: 0, duration: 1.4, stagger: 0.15, ease: "expo.out", scrollTrigger: { trigger: ".prolog__turn", start: "top 45%" } });
-}
-
-/* Kapitelüberschriften fliegen herein */
-function setupTitles() {
-  $$(".chapter:not(.chapter--prolog) .chead").forEach((h) => {
-    gsap.from($(".chead__num", h), { opacity: 0, letterSpacing: "0.6em", duration: 1.2, ease: "power3.out", scrollTrigger: { trigger: h, start: "top 80%" } });
-    gsap.from($$(".line > *", h), { yPercent: 110, duration: 1.3, ease: "expo.out", stagger: 0.1, scrollTrigger: { trigger: h, start: "top 80%" } });
-    if (!reducedMotion) gsap.from($(".title", h), { scale: 0.9, filter: finePointer ? "blur(10px)" : "blur(6px)", duration: 1.4, ease: "expo.out", clearProps: "filter,scale", scrollTrigger: { trigger: h, start: "top 80%" } });
-  });
-  $$(".story p, .story .trio li, .shot .card__cap, .promise__honest, .tour__intro > *, .tour__cta, .faq details, .road__step, .book, .rate, .pause, .quiz, .epilog > *").forEach((el) => {
-    gsap.from(el, { y: 30, opacity: 0, duration: 1, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 88%" } });
-  });
-}
-
-/* Schwebende 3D-Elemente: kippen beim Vorbeiscrollen, folgen der Maus */
-function setupFloats() {
-  if (reducedMotion) return;
-  $$(".float3d").forEach((el) => {
-    const wrap = document.createElement("div");
-    wrap.className = "float3d__wrap";
-    wrap.style.cssText = "transform-style:preserve-3d;will-change:transform";
-    el.parentNode.insertBefore(wrap, el);
-    wrap.append(el);
-    gsap.fromTo(wrap, { rotateX: 16, y: 70, z: -60 }, {
-      rotateX: -8, y: -50, z: 0, ease: "none",
-      scrollTrigger: { trigger: wrap, start: "top bottom", end: "bottom top", scrub: 0.8 }
-    });
-  });
-  if (finePointer) {
-    let mx = 0, my = 0;
-    window.addEventListener("pointermove", (e) => { mx = e.clientX / innerWidth - 0.5; my = e.clientY / innerHeight - 0.5; });
-    const floats = $$(".float3d");
-    gsap.ticker.add(() => floats.forEach((f) => gsap.set(f, { rotateY: mx * 10, rotateX: -my * 6 })));
-  }
 }
 
 /* App-Tour (Kapitel IV): der Schritt in der Bildschirmmitte bestimmt das Bild im Handy */
@@ -829,10 +610,6 @@ function setupTour() {
   };
   set(0);
   ScrollTrigger.create({ trigger: tour, start: "top bottom", end: "bottom top", onUpdate: aktuell, onRefresh: aktuell });
-  // am Handy: Bild je Schritt kommt leicht vergrößert herein
-  if (!reducedMotion) $$(".tour__inline .device", tour).forEach((d) => {
-    gsap.fromTo(d, { scale: 0.9, rotateX: 10, opacity: 0.4 }, { scale: 1, rotateX: 0, opacity: 1, ease: "none", scrollTrigger: { trigger: d, start: "top bottom", end: "top 45%", scrub: 0.6 } });
-  });
 }
 
 /* Farbtypen-Quiz */
@@ -883,106 +660,9 @@ function setupQuiz() {
   render();
 }
 
-/* Versprechen als Szene: die Stelle bleibt stehen, Serband kommt aus der Tiefe
-   und wird scharf (der Hintergrund dafür unscharf), der Satz leuchtet Wort für Wort
-   auf, dann schreibt sich die Unterschrift. Beim Weiterscrollen tritt er zurück. */
+/* Versprechen: Foto, Satz und Unterschrift stehen ruhig da */
 function setupVow() {
-  const vow = $("#vow"), p = $("#promiseText");
-  const words = p.textContent.trim().split(/\s+/);
-  p.innerHTML = words.map((w) => `<span class="w">${w.replace(/[<>&]/g, "")}</span>`).join(" ");
-  const spans = $$(".w", p);
-  const photo = $("#vowPhoto");
-  const frame = photo && $(".vow__frame", photo);
-  const sig = $(".promise__sig span", vow);
-  // stehen bleiben nur, wenn genug Höhe da ist (nicht bei Handy quer)
-  if (reducedMotion || window.innerHeight < 520) { spans.forEach((s) => s.classList.add("is-lit")); return; }
-  vow.classList.add("is-pinned");
-  const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
-  const tl = gsap.timeline({
-    defaults: { ease: "none" },
-    scrollTrigger: {
-      trigger: vow, start: "top top", end: "bottom bottom", scrub: 0.6,
-      onUpdate: (self) => {
-        const k = self.progress;
-        const n = Math.round(smooth(0.2, 0.7, k) * spans.length);
-        spans.forEach((s, i) => s.classList.toggle("is-lit", i < n));
-        if (photo) stage.soft("versprechen", smooth(0.04, 0.3, k) * (1 - smooth(0.9, 1, k)));
-      }
-    }
-  });
-  if (frame) {
-    tl.fromTo(frame, { scale: 0.7, yPercent: 10, rotateY: -16, rotateX: 7, opacity: 0, filter: finePointer ? "blur(18px)" : "blur(8px)" },
-      { scale: 1, yPercent: 0, rotateY: 0, rotateX: 0, opacity: 1, filter: "blur(0px)", duration: 0.32, ease: "power2.out" }, 0)
-      .fromTo(".vow__glow", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power1.out" }, 0.08)
-      .fromTo(".vow__sheen", { x: 0, xPercent: -70 }, { x: 0, xPercent: 70, duration: 0.16, ease: "power1.inOut" }, 0.34)
-      .to(frame, { scale: 0.9, yPercent: -4, opacity: 0.55, filter: finePointer ? "blur(6px)" : "blur(4px)", duration: 0.1 }, 0.9)
-      .to(".vow__glow", { opacity: 0.2, duration: 0.1 }, 0.9);
-  }
-  tl.fromTo(sig, { clipPath: "inset(-30% 110% -30% -10%)", opacity: 0.4 }, { clipPath: "inset(-30% -30% -30% -10%)", opacity: 1, duration: 0.14, ease: "power1.inOut" }, 0.72)
-    .to({}, { duration: 0.02 }, 0.98); // Zeitleiste endet genau bei 1
-  // wird das Handy nach dem Laden quer gedreht, entfällt das Stehenbleiben (CSS);
-  // dann die Szene fertig zeigen statt halb eingeblendet
-  const flach = matchMedia("(max-height: 519px)");
-  const onFlach = () => {
-    if (flach.matches) {
-      tl.scrollTrigger.disable(false);
-      tl.progress(0.86);
-      spans.forEach((s) => s.classList.add("is-lit"));
-      if (photo) stage.soft("versprechen", 0);
-    } else tl.scrollTrigger.enable();
-  };
-  flach.addEventListener("change", onFlach);
-  // am Computer folgt das Foto leicht der Maus
-  if (photo && finePointer) {
-    const rx = gsap.quickTo(photo, "rotateX", { duration: 0.8, ease: "power3.out" });
-    const ry = gsap.quickTo(photo, "rotateY", { duration: 0.8, ease: "power3.out" });
-    window.addEventListener("pointermove", (e) => { ry((e.clientX / innerWidth - 0.5) * 12); rx(-(e.clientY / innerHeight - 0.5) * 8); });
-  }
-}
-
-/* Kapitel I: das Foto öffnet sich wie eine Blende und schwebt beim Scrollen */
-function setupShot() {
-  const shot = $("#shot");
-  if (!shot || reducedMotion) return;
-  const frame = $(".shot__frame", shot), img = $("img", shot);
-  gsap.fromTo(frame, { clipPath: "inset(16% 12% 16% 12% round 30px)", filter: finePointer ? "blur(10px)" : "blur(6px)" },
-    { clipPath: "inset(-40% -30% -40% -30% round 18px)", filter: "blur(0px)", ease: "none",
-      scrollTrigger: { trigger: shot, start: "top 96%", end: "top 45%", scrub: 0.6 } });
-  gsap.fromTo(img, { scale: 1.3, yPercent: -5 }, { scale: 1.04, yPercent: 3, ease: "none",
-    scrollTrigger: { trigger: shot, start: "top bottom", end: "bottom top", scrub: true } });
-}
-
-/* Was nach oben weggeschoben wird, tritt zurück und verschwimmt.
-   Am Handy nur bei wenigen Elementen, damit nichts ruckelt. */
-function setupDepth() {
-  if (reducedMotion) return;
-  const max = finePointer ? 8 : 5;
-  const sel = finePointer
-    ? ".chead, .story, .tour__intro, .deal, .road, .faq-wrap, .stimmen"
-    : ".chead, .shot";
-  const items = $$(sel).map((el) => [el, el, max]);
-  // die bildschirmhohe Versprechen-Fläche am Handy nur ausblenden, nicht weichzeichnen
-  items.push([$("#vow"), $("#vow .vow__pin"), finePointer ? max : 0]);
-  items.forEach(([trigger, el, blur]) => {
-    const reset = () => { el.style.filter = ""; el.style.opacity = ""; el.style.scale = ""; };
-    ScrollTrigger.create({
-      trigger, start: "bottom 38%", end: "bottom top", scrub: true,
-      onUpdate: (s) => {
-        const k = s.progress;
-        if (k < 0.01) return reset();
-        if (blur) el.style.filter = `blur(${(k * blur).toFixed(2)}px)`;
-        el.style.opacity = (1 - k * 0.75).toFixed(3);
-        el.style.scale = (1 - k * 0.06).toFixed(4);
-      },
-      onLeaveBack: reset
-    });
-  });
-}
-
-/* Dein Weg: goldene Linie wächst mit */
-function setupRoad() {
-  const road = $("#road");
-  ScrollTrigger.create({ trigger: road, start: "top 70%", end: "bottom 60%", scrub: true, onUpdate: (s) => road.style.setProperty("--prog", s.progress.toFixed(3)) });
+  if (!$("#vowPhoto")) $("#vow").classList.add("vow--text");
 }
 
 /* Kalender- und Hinweisfenster, Menü */
@@ -1020,10 +700,9 @@ function setupSheets() {
 }
 const menuOpen = () => $("#menu").classList.contains("is-open");
 const sheetOpen = () => $$(".sheet").some((s) => !s.hidden);
-// Seite hinter Menü oder Fenster festhalten (auch am Handy ohne Lenis)
+// Seite hinter Menü oder Fenster festhalten
 function lockScroll(on) {
   document.body.style.overflow = on ? "hidden" : "";
-  if (lenis) on ? lenis.stop() : lenis.start();
 }
 function setMenu(openNow) {
   const m = $("#menu");
@@ -1038,3 +717,5 @@ function closeMenu() {
   if (menuOpen()) setMenu(false);
 }
 
+// erst ganz am Ende starten: alle Funktionen und Variablen oben sind dann angelegt
+start();
