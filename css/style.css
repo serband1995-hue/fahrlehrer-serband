@@ -614,3 +614,73 @@ svg[hidden] { display: none !important; }
 .lupe__knoepfe { display: flex; gap: 10px; }
 body.lupe-offen { overflow: hidden; }
 .road__link { display: inline-block; margin-top: 6px; color: var(--gold-soft); text-underline-offset: 4px; }
+
+/* ---------- Ruhige Startseite (01.10.2026) ----------
+   Kein Vorspann, keine an das Scrollen gekoppelten Effekte: Texte stehen still.
+   Der Hintergrund läuft als Schleife und ist gleichmäßig abgedunkelt, damit man lesen kann. */
+.stage__shade { background-color: rgba(5, 8, 10, .5); }
+.road { --prog: 1; }
+.chapter--hero { padding-top: clamp(104px, 16vh, 180px); }
+.hero { width: min(860px, 100%); margin: 0 auto; text-align: center; }
+.hero__vor { margin: 0 0 18px; font-family: var(--serif); font-style: italic; font-size: clamp(22px, 2.4vw, 32px); color: var(--muted); text-shadow: 0 2px 24px rgba(0,0,0,.8); }
+.hero .title { margin-bottom: 26px; }
+.hero__text { margin: 0 auto; max-width: 36ch; text-shadow: 0 2px 24px rgba(0,0,0,.85); }
+.hero .row { justify-content: center; }
+.hero .prolog__sub { margin-top: 30px; }
+.kacheln { width: min(1100px, 100%); margin: clamp(56px, 9vh, 100px) auto 0; }
+.kacheln__titel { margin: 0 0 16px; text-align: center; font-family: var(--display); font-weight: 700; font-size: clamp(22px, 3vw, 30px); }
+.kacheln__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 860px) { .kacheln__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
+.kachel { display: flex; flex-direction: column; gap: 6px; min-width: 0; min-height: 110px; padding: 16px; border-radius: 18px; border: 1px solid var(--line); background: rgba(10, 16, 20, .82); text-decoration: none; transition: border-color .25s, background .25s; }
+.kachel b { font-family: var(--display); font-weight: 700; font-size: clamp(17px, 2vw, 21px); color: var(--text); }
+.kachel b::after { content: " →"; color: var(--gold); }
+.kachel span { font-size: 14px; line-height: 1.4; color: var(--muted); overflow-wrap: anywhere; hyphens: auto; }
+.kachel:hover, .kachel:focus-visible { border-color: rgba(217,181,107,.6); background: rgba(16, 24, 29, .9); }
+.kachel--gold { border-color: rgba(217,181,107,.55); background: linear-gradient(160deg, rgba(217,181,107,.2), rgba(10,16,20,.85) 70%); }
+.kicker--mitte { justify-content: center; }
+.menu__pages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 30px; }
+.menu__pages a { padding: 14px 12px; border-radius: 14px; border: 1px solid var(--line); text-decoration: none; font-family: var(--display); font-weight: 700; font-size: clamp(16px, 2.4vw, 22px); text-align: center; }
+.menu__pages a:hover { border-color: rgba(217,181,107,.6); color: var(--gold-soft); }
+.menu__list a { transition-delay: 0s; }
+.zitat { margin: 30px auto 0; max-width: 640px; }
+.zitat blockquote { margin: 0; }
+.zitat p { margin: 0; font-family: var(--serif); font-style: italic; font-size: clamp(24px, 3vw, 36px); line-height: 1.25; color: var(--cream); }
+.zitat figcaption { margin-top: 8px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.stimmen__dank { max-width: 58ch; margin: 18px auto 30px; color: var(--muted); }
+:target, [id] { scroll-margin-top: 84px; }
+.menu { grid-template-columns: minmax(0, 1fr); }
+.menu__pages a { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 420px) { .menu__pages a { padding: 12px 6px; font-size: 15px; } }
+.foot nav { flex-wrap: wrap; column-gap: 18px; row-gap: 0; }
+
+/* ---------- Über mich & Praxis ---------- */
+.seite__kopf { max-width: none; display: grid; gap: 28px; align-items: center; }
+@media (min-width: 760px) { .seite__kopf { grid-template-columns: minmax(0, 1fr) 340px; gap: 50px; } }
+.seite__kopf > * { min-width: 0; }
+.seite__foto { margin: 0; justify-self: center; width: min(70vw, 340px); }
+.seite__foto img { width: 100%; height: auto; aspect-ratio: 1000 / 1498; object-fit: cover; border-radius: 22px; border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+.fliesstext { max-width: 62ch; }
+.fliesstext p { margin: 0 0 14px; color: rgba(238,241,242,.88); }
+.fliesstext p:last-child { margin-bottom: 0; }
+.seite__weiter { margin: 18px 0 0; }
+.seite__weiter a { color: var(--gold-soft); text-underline-offset: 4px; }
+.zitat--links { margin: 0 0 18px; }
+.steckbrief { margin: 0; display: grid; gap: 10px; max-width: 780px; }
+@media (min-width: 640px) { .steckbrief { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.steckbrief div { padding: 14px 16px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.03); min-width: 0; }
+.steckbrief dt { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.steckbrief dd { margin: 4px 0 0; color: var(--text); overflow-wrap: anywhere; }
+.schritte { list-style: none; counter-reset: schritt; margin: 0; padding: 0; display: grid; gap: 14px; max-width: 780px; }
+.schritte li { counter-increment: schritt; position: relative; padding: 18px 18px 18px 64px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.03); min-width: 0; }
+.schritte li::before { content: counter(schritt); position: absolute; left: 16px; top: 16px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 800; color: #16110a; background: linear-gradient(135deg, #f3dfa9, #d4aa57); }
+.schritte h3 { margin: 0 0 6px; font-family: var(--display); font-size: clamp(18px, 2.4vw, 22px); }
+.schritte h3 small { font-family: var(--body); font-weight: 400; font-size: 13px; color: var(--gold); margin-left: 6px; white-space: nowrap; }
+.schritte p { margin: 0; color: var(--muted); }
+.theorie__fuss { flex-wrap: wrap; row-gap: 6px; }
+.theorie__fuss a { display: inline-block; padding: 10px 0; }
+.story--text { text-align: left; width: min(680px, 100%); }
+.story--text .quote { text-align: left; }
+.kachel b::after { content: "\00a0→"; }
+.menu { background: #040608; }
+@media (max-width: 400px) { .kachel { padding: 14px 12px; } .kachel b { font-size: 16px; } }
+@media (max-width: 340px) { .kachel b { font-size: 15px; } }

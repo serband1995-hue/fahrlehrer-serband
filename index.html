@@ -20,31 +20,11 @@
 <link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="is-loading">
+<body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="logo" viewBox="0 0 120 120"><circle class="mk-ring" cx="60" cy="60" r="50" pathLength="1"/><circle class="mk-ring mk-ring--in" cx="60" cy="60" r="43" pathLength="1"/><path class="mk-pts" d="M60 2l4.5 16h-9zM60 118l4.5-16h-9zM2 60l16-4.5v9zM118 60l-16-4.5v9z"/><path class="mk-shield" pathLength="1" d="M33 46V41c11-1 20-5 27-14 7 9 16 13 27 14v5 16c0 17-11 28-27 36-16-8-27-19-27-36z"/><circle class="mk-wheel" cx="60" cy="46" r="6.5" pathLength="1"/><path class="mk-wheel" pathLength="1" d="M53.5 46h13M60 46v6.5"/><path class="mk-road" pathLength="1" d="M74 64c-12 0-24 3-24 10s14 8 14 14-6 7-8 9"/><path class="mk-line" d="M74 64c-12 0-24 3-24 10s14 8 14 14-6 7-8 9"/></symbol></svg>
 
-<!-- ============ Vorspann ============ -->
-<div class="intro" id="intro">
-  <div class="intro__inner">
-    <svg class="intro__mark mk" viewBox="0 0 120 120" aria-hidden="true"><circle class="mk-ring" cx="60" cy="60" r="50" pathLength="1"/><circle class="mk-ring mk-ring--in" cx="60" cy="60" r="43" pathLength="1"/><path class="mk-pts" d="M60 2l4.5 16h-9zM60 118l4.5-16h-9zM2 60l16-4.5v9zM118 60l-16-4.5v9z"/><path class="mk-shield" pathLength="1" d="M33 46V41c11-1 20-5 27-14 7 9 16 13 27 14v5 16c0 17-11 28-27 36-16-8-27-19-27-36z"/><circle class="mk-wheel" cx="60" cy="46" r="6.5" pathLength="1"/><path class="mk-wheel" pathLength="1" d="M53.5 46h13M60 46v6.5"/><path class="mk-road" pathLength="1" d="M74 64c-12 0-24 3-24 10s14 8 14 14-6 7-8 9"/><path class="mk-line" d="M74 64c-12 0-24 3-24 10s14 8 14 14-6 7-8 9"/></svg>
-    <p class="intro__name">SERBAND</p>
-    <p class="intro__sub">Fahrlehrer · Offenbach am Main</p>
-    <div class="intro__count"><span id="introCount">0</span><small>%</small></div>
-    <div class="intro__actions" id="introActions" hidden>
-      <button class="ignite" id="ignite" type="button">
-        <span class="ignite__ring"></span>
-        <span class="ignite__label">Motor<br>starten</span>
-      </button>
-      <button class="intro__mute" id="igniteMute" type="button">ohne Ton weiter</button>
-    </div>
-  </div>
-  <div class="intro__curtain intro__curtain--top"></div>
-  <div class="intro__curtain intro__curtain--bottom"></div>
-</div>
-
 <div class="stage" id="stage" aria-hidden="true"></div>
-<div class="stage__shade" id="stageShade" aria-hidden="true" style="--dim:.9"></div>
-<div class="bars" aria-hidden="true"><i></i><i></i></div>
+<div class="stage__shade" id="stageShade" aria-hidden="true"></div>
 
 <!-- ============ Kopfzeile ============ -->
 <header class="top" id="top">
@@ -53,8 +33,8 @@
     <span>SERBAND</span>
   </a>
   <div class="top__chapter" aria-hidden="true">
-    <span class="top__num" id="topNum">Prolog</span>
-    <span class="top__name" id="topName">Kennst du die Geschichten?</span>
+    <span class="top__num" id="topNum">Start</span>
+    <span class="top__name" id="topName">Es geht auch anders</span>
   </div>
   <div class="top__actions">
     <a class="btn btn--small" href="#los"><span>Termin buchen</span></a>
@@ -65,11 +45,15 @@
 
 <nav class="menu" id="menu" aria-hidden="true" aria-label="Kapitel">
   <div class="menu__inner">
-    <p class="menu__label">Inhalt</p>
+    <p class="menu__label">Seiten</p>
+    <div class="menu__pages">
+      <a href="ueber-mich.html">Über mich</a>
+      <a href="praxis.html">Praxis</a>
+      <a href="theorie.html">Theorie</a>
+    </div>
+    <p class="menu__label">Auf dieser Seite</p>
     <ol class="menu__list" id="menuList"></ol>
     <div class="menu__foot">
-      <button class="menu__sound" id="soundBtn" type="button" aria-pressed="false">Motorsound <b>aus</b></button>
-      <a href="theorie.html">Theorieunterricht</a>
       <a href="impressum.html">Impressum</a>
       <a href="datenschutz.html">Datenschutz</a>
     </div>
@@ -78,23 +62,30 @@
 
 <main id="film">
 
-  <!-- ============ PROLOG ============ -->
-  <section class="chapter chapter--prolog" id="prolog" data-kapitel="Prolog" data-titel="Kennst du die Geschichten?">
-    <div class="prolog">
-      <p class="prolog__line">Frag mal deine Eltern nach ihrer Fahrschule.</p>
-      <p class="prolog__line">Viele erzählen dieselbe Geschichte.</p>
-      <p class="prolog__line">Von einem Fahrlehrer, der geschrien hat.</p>
-      <p class="prolog__line">Von Fehlern, die nicht passieren durften.</p>
-      <p class="prolog__line">Von Herzklopfen, schon bevor man eingestiegen ist.</p>
-      <p class="prolog__line prolog__line--quiet">Und manche glauben bis heute: So ist das eben.</p>
-    </div>
-    <div class="prolog__space" aria-hidden="true"></div>
-    <div class="prolog__turn">
-      <p class="prolog__no">Ist es nicht.</p>
+  <!-- ============ START ============ -->
+  <section class="chapter chapter--hero" id="prolog" data-kapitel="Start" data-titel="Es geht auch anders">
+    <div class="hero">
+      <p class="hero__vor">Frag mal deine Eltern nach ihrer Fahrschule.</p>
       <h1 class="title title--xl"><span class="line"><span>Es geht</span></span><span class="line"><em>auch anders.</em></span></h1>
+      <p class="lead hero__text">Die meisten haben schon Horrorgeschichten über Fahrlehrer gehört. Ich will zeigen, dass es anders geht. Ein Führerschein kostet viel Geld. Dafür verdienst du eine Ausbildung, die Spaß macht und dir mehr mitgibt als nur das Autofahren.</p>
+      <div class="row row--center">
+        <a class="btn" href="#los"><span>Termin buchen</span><i class="arrow"></i></a>
+        <a class="btn btn--ghost" href="ueber-mich.html"><span>Wer ist Serband?</span></a>
+      </div>
       <p class="prolog__sub">Fahrlehrer Serband · Offenbach am Main</p>
     </div>
-    <a class="cue" href="#ruhe"><span>Weiter</span><i></i></a>
+
+    <nav class="kacheln" aria-labelledby="kachelnTitel">
+      <h2 class="kacheln__titel" id="kachelnTitel">Was suchst du?</h2>
+      <div class="kacheln__grid">
+        <a class="kachel" href="ueber-mich.html"><b>Über mich</b><span>Wer ich bin und warum ich Fahrlehrer geworden bin</span></a>
+        <a class="kachel" href="praxis.html"><b>Praxis</b><span>Deine erste Fahrstunde und wie es danach weitergeht</span></a>
+        <a class="kachel" href="theorie.html"><b>Theorie</b><span>7 Abende mit Gruppenarbeiten statt Folien-Ablesen</span></a>
+        <a class="kachel" href="#werkzeuge"><b>Meine Apps</b><span>Fahrlehrer-Kompass und Fahr-Akademie</span></a>
+        <a class="kachel" href="#stimmen" data-kachel="stimmen"><b>Bewertungen</b><span>Was meine Fahrschüler sagen</span></a>
+        <a class="kachel kachel--gold" href="#los"><b>Termin buchen</b><span>Schaltung oder Automatik, freie Termine ansehen</span></a>
+      </div>
+    </nav>
   </section>
 
   <!-- ============ KAPITEL I ============ -->
@@ -115,7 +106,7 @@
         <ul class="trio">
           <li><b>Ruhe</b><span>Kein Druck, kein Anmeckern.</span></li>
           <li><b>Klarheit</b><span>Du weißt immer, woran du bist.</span></li>
-          <li><b>Freude</b><span>Fahren darf Spaß machen.</span></li>
+          <li><b>Humor</b><span>Ein lockerer Spruch zur richtigen Zeit.</span></li>
         </ul>
       </div>
     </div>
@@ -127,9 +118,10 @@
       <span class="chead__num">II</span>
       <h2 class="title"><span class="line"><span>Du bist nicht</span></span><span class="line"><em>wie alle.</em></span></h2>
     </header>
-    <div class="story story--center">
-      <p class="lead">Manche wollen sofort losfahren. Andere wollen erst verstehen, warum. Manche brauchen Ruhe, andere ein gutes Wort.</p>
-      <p>Deshalb schauen wir am Anfang gemeinsam, wie du tickst, angelehnt an das Farbmodell von Thomas Erikson: <span class="c c--r">Rot</span>, <span class="c c--y">Gelb</span>, <span class="c c--g">Grün</span> und <span class="c c--b">Blau</span>. Daraus entsteht eine Ausbildung, die zu dir passt.</p>
+    <div class="story story--center story--text">
+      <p class="lead">Jeder Fahrlehrer hat seine eigene Art, und nicht jeder passt zu jedem. Das ist gut so.</p>
+      <p>Ich kann mich gut in andere hineinversetzen. Ich merke, wenn jemand angespannt ist, auch wenn er es nicht sagt. Ich weiß, wann ein lockerer Spruch die Stimmung löst und wann es ernst werden muss. Bei mir bekommst du beides: Wissen und ein offenes Ohr.</p>
+      <p>Damit ich weiß, wie du tickst, schauen wir am Anfang gemeinsam auf deine Farbe, angelehnt an das Farbmodell von Thomas Erikson: <span class="c c--r">Rot</span>, <span class="c c--y">Gelb</span>, <span class="c c--g">Grün</span> und <span class="c c--b">Blau</span>. Daraus entsteht eine Ausbildung, die zu dir passt.</p>
       <p class="quote">Dein Fahrlehrer passt sich dir an. <em>Nicht du deinem Fahrlehrer.</em></p>
     </div>
     <div class="quiz card" id="quiz">
@@ -166,7 +158,7 @@
     </div>
     <p class="promise__honest">Wie schnell und wie günstig, liegt am Ende auch ein Stück bei dir.<br><em>Aber du gehst diesen Weg nicht allein.</em></p>
     <div class="deal">
-      <div class="deal__col card float3d">
+      <div class="deal__col card">
         <p class="deal__who">Mein Teil</p>
         <ul>
           <li>Ein klarer Plan für jede Stunde</li>
@@ -174,7 +166,7 @@
           <li>Keine Stunde zu viel, keine zu wenig</li>
         </ul>
       </div>
-      <div class="deal__col card float3d">
+      <div class="deal__col card">
         <p class="deal__who">Dein Teil</p>
         <ul>
           <li>Dranbleiben, auch wenn es mal hakt</li>
@@ -191,8 +183,12 @@
       <span class="chead__num">IV</span>
       <h2 class="title"><span class="line"><span>Die Werkzeuge</span></span><span class="line"><em>dahinter.</em></span></h2>
     </header>
-    <div class="story story--center">
-      <p class="lead">Ein Versprechen braucht mehr als gute Absichten. Deshalb habe ich mich hingesetzt und mir die Werkzeuge gebaut, die ich selbst immer vermisst habe.</p>
+    <div class="story story--center story--text">
+      <p class="kicker">Auf ihren Schultern</p>
+      <p class="lead">Am Anfang meiner Zeit als Fahrlehrer gab es Schüler, bei denen ich alles versucht habe, und trotzdem wollte es nicht klappen. Nicht, weil sie es nicht wollten, sondern weil ich noch nicht wusste, wie ich sie erreiche.</p>
+      <p>Diese Schüler haben mich mehr gelehrt als jedes Lehrbuch. Jeder von ihnen hat mich gezwungen, neu nachzudenken: Wie erkläre ich es anders? Was braucht dieser Mensch gerade? Wie schaffen wir es gemeinsam bis zur Prüfung?</p>
+      <p>Aus diesen Fragen sind der Fahrlehrer-Kompass und die Fahr-Akademie entstanden. Alles, was heute bei mir funktioniert, steht auf den Schultern der Schüler, die es schwer hatten und es trotzdem geschafft haben. Ihnen verdanke ich, dass es die Schüler nach ihnen leichter haben.</p>
+      <p>Fertig sind wir damit noch lange nicht. Jeder neue Schüler bringt neue Fragen mit, und jede Antwort macht die Ausbildung ein Stück besser.</p>
     </div>
 
     <div class="tour" id="tour">
@@ -290,11 +286,11 @@
     </header>
     <ol class="road" id="road">
       <li class="road__step"><span class="road__n">01</span><div><h3>Anmelden</h3><p>Sehtest, Erste-Hilfe-Kurs, Passbild. Wir klären alles in Ruhe.</p></div></li>
-      <li class="road__step"><span class="road__n">02</span><div><h3>Kennenlernen</h3><p>Deine Farbe, dein Tempo, deine Ziele. Daraus wird dein Plan.</p></div></li>
+      <li class="road__step"><span class="road__n">02</span><div><h3>Erste Fahrstunde</h3><p>Eine Doppelstunde: kennenlernen, das Auto einrichten, erste Lenkübungen auf einem großen Parkplatz. <a class="road__link" href="praxis.html">So läuft die erste Stunde</a></p></div></li>
       <li class="road__step"><span class="road__n">03</span><div><h3>Theorie</h3><p>Unterricht und Lernen am Handy, in der Fahr-Akademie siehst du vieles schon vorher. <a class="road__link" href="theorie.html">So läuft mein Theorieunterricht</a></p></div></li>
       <li class="road__step"><span class="road__n">04</span><div><h3>Fahren lernen</h3><p>Erst ruhige Straßen, dann Stadt, Kreuzungen, Kreisverkehre. In deinem Tempo.</p></div></li>
-      <li class="road__step"><span class="road__n">05</span><div><h3>Sonderfahrten</h3><p>Überland, Autobahn, Dunkelheit. Die Fahrten, die dich wirklich sicher machen.</p></div></li>
-      <li class="road__step road__step--goal"><span class="road__n">06</span><div><h3>Prüfung</h3><p>Die typischen Strecken kennst du schon. Du steigst ein und fährst einfach.</p></div></li>
+      <li class="road__step"><span class="road__n">05</span><div><h3>Sonderfahrten</h3><p>Pflicht für Klasse B: 5 Fahrstunden über Land, 4 auf der Autobahn und 3 bei Dunkelheit, je 45 Minuten.</p></div></li>
+      <li class="road__step road__step--goal"><span class="road__n">06</span><div><h3>Prüfung</h3><p>Die Prüfungsstrecken kennst du aus der Fahr-Akademie. Angemeldet wirst du, wenn der Kompass zeigt: Es sitzt.</p></div></li>
     </ol>
 
     <div class="pause card" id="test">
@@ -335,8 +331,13 @@
       <span class="chead__num">VI</span>
       <h2 class="title"><span class="line"><span>Los</span></span><span class="line"><em>geht's.</em></span></h2>
     </header>
-    <div class="story story--center">
-      <p class="lead">Du musst nicht mutig sein, um anzufangen. Du musst nur anfangen.</p>
+    <div class="story story--center story--text">
+      <p class="kicker">Trau dich</p>
+      <p class="lead">Frag mal Leute, ob sie sich an ihren Chemielehrer erinnern. Die meisten müssen überlegen. Frag sie nach ihrem Fahrlehrer, und fast jeder hat sofort ein Gesicht vor Augen.</p>
+      <p>Dabei haben wir mit unseren Lehrern in der Schule Jahre verbracht und mit dem Fahrlehrer nur ein paar Wochen. Ich weiß noch genau, wer mein Fahrlehrer war, weil er seinen Job richtig gut gemacht hat. So will ich auch in Erinnerung bleiben.</p>
+      <p>Ich will, dass du dich bei mir sicher fühlst. Dass du ins Auto steigst und für eine Weile alles andere draußen lassen kannst. Und dass du am Ende merkst: Autofahren ist einfacher, als es aussieht, wenn man sich traut und es wirklich verstanden hat.</p>
+      <p>Vielleicht fühlt es sich gerade schwer an. Vielleicht denkst du, das schaffst du nie. Dann komm trotzdem. Es gibt hier jemanden, der gern Mühe in dich steckt.</p>
+      <p class="quote">Ich bin nur dein Fahrlehrer. <em>Aber vielleicht ist das mehr, als du denkst.</em></p>
     </div>
 
     <div class="klassen-wrap">
@@ -388,6 +389,11 @@
       <header class="stimmen__head">
         <p class="quiz__kicker">Google-Bewertungen · Wort für Wort</p>
         <h3 class="stimmen__title">Frag nicht mich.<br><em>Frag meine Fahrschüler.</em></h3>
+        <figure class="zitat">
+          <blockquote><p>„Ich hätte mir keinen besseren Fahrlehrer wünschen können.“</p></blockquote>
+          <figcaption>Fahrschülerin, Google-Bewertung</figcaption>
+        </figure>
+        <p class="stimmen__dank">Solche Sätze lese ich nicht einfach weg. Hinter jedem steckt ein Weg mit Höhen und Tiefen, den wir zusammen gegangen sind. Wenn am Ende so etwas steht, weiß ich, dass sich jede Stunde gelohnt hat. Dafür bin ich dankbar.</p>
       </header>
       <div class="reviews" id="reviews" role="region" aria-label="Bewertungen von Fahrschülern"></div>
       <div class="row row--center"><a class="btn btn--ghost" id="reviewsLink" href="#" target="_blank" rel="noopener"><span>Alle Bewertungen auf Google</span><i class="arrow"></i></a></div>
@@ -418,7 +424,7 @@
     <footer class="foot">
       <div class="foot__brand"><svg class="mk" viewBox="0 0 120 120" aria-hidden="true"><use href="#logo"/></svg><div><b>SERBAND</b><span>Fahrlehrer in Offenbach am Main</span></div></div>
       <p>Ausbildung über die Fahrschule Boost · Berliner Straße 2 · 63065 Offenbach am Main · <a id="telLink" href="#"></a></p>
-      <nav id="socialLinks"><a href="theorie.html">Theorie</a><a id="impLink" href="impressum.html">Impressum</a><a id="dsLink" href="datenschutz.html">Datenschutz</a></nav>
+      <nav id="socialLinks"><a href="ueber-mich.html">Über mich</a><a href="praxis.html">Praxis</a><a href="theorie.html">Theorie</a><a id="impLink" href="impressum.html">Impressum</a><a id="dsLink" href="datenschutz.html">Datenschutz</a></nav>
     </footer>
   </section>
 </main>
@@ -467,10 +473,9 @@
   </div>
 </div>
 
-<noscript><style>.intro{display:none}body.is-loading{overflow:auto}.stage{background:url(img/hero.jpg) 70% 50%/cover}.chapter{opacity:1!important}.prolog__line{opacity:1;grid-area:auto}</style></noscript>
+<noscript><style>.stage{background:url(img/hero.jpg) 70% 50%/cover}</style></noscript>
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/ScrollTrigger.min.js"></script>
-<script src="vendor/lenis.min.js"></script>
 <script src="vendor/qrcode.js"></script>
 <script type="module" src="js/main.js"></script>
 <script type="module" src="js/klassen.js"></script>
