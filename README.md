@@ -41,6 +41,7 @@ Dort ist alles, was noch fehlt, mit `TODO` markiert:
 | `css/style.css` | Design (Farben oben in `:root`) |
 | `js/stage.js` | Bühne: Hintergrund je Kapitel, Video in Endlosschleife |
 | `js/main.js` | Kapitelanzeige, App-Tour, Quiz, Reaktionstest, Bewertungen, Kalender (ruhig: kein Vorspann, kein Nachgleiten, keine Scroll-Effekte) |
+| `js/reaktion.js` | Reaktionstest mit Bestenliste (Theorie-Seite, Lektion 1) |
 | `vendor/`, `fonts/` | Bibliotheken und Schriften, lokal gespeichert (keine Google-Server) |
 
 Die Seite setzt keine Cookies und nutzt kein Tracking. Der Buchungskalender wird erst nach einem Klick geladen.

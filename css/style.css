@@ -619,7 +619,6 @@ body.lupe-offen { overflow: hidden; }
    Kein Vorspann, keine an das Scrollen gekoppelten Effekte: Texte stehen still.
    Der Hintergrund läuft als Schleife und ist gleichmäßig abgedunkelt, damit man lesen kann. */
 .stage__shade { background-color: rgba(5, 8, 10, .5); }
-.road { --prog: 1; }
 .chapter--hero { padding-top: clamp(104px, 16vh, 180px); }
 .hero { width: min(860px, 100%); margin: 0 auto; text-align: center; }
 .hero__vor { margin: 0 0 18px; font-family: var(--serif); font-style: italic; font-size: clamp(22px, 2.4vw, 32px); color: var(--muted); text-shadow: 0 2px 24px rgba(0,0,0,.8); }
@@ -711,3 +710,38 @@ body.lupe-offen { overflow: hidden; }
 .reviews__row:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
 @media (prefers-reduced-motion: reduce) { .reviews__row { scroll-snap-type: x mandatory; scroll-padding: 0 var(--gutter); scrollbar-width: thin; } .review { scroll-snap-align: start; } }
 .stimmen > *, .reviews { min-width: 0; }
+/* Reaktionstest: Rückmeldungen ohne GSAP */
+@keyframes wackeln { 0% { transform: translateX(-10px); } 30% { transform: translateX(7px); } 55% { transform: translateX(-4px); } 80% { transform: translateX(2px); } 100% { transform: none; } }
+.light-btn.wackelt { animation: wackeln .5s ease-out; }
+@keyframes neuBest { 0% { transform: scale(1.4); color: #8fe6bf; } 100% { transform: none; color: var(--gold-soft); } }
+#gameBest.neu { display: inline-block; animation: neuBest .8s cubic-bezier(.3,1.6,.5,1); }
+
+/* Dein Weg: die goldene Linie wächst beim Scrollen mit; erreichte Nummern werden größer
+   (Linie liegt hinter den Kreisen, nicht mehr durch die Zahl) */
+.road::before, .road::after { z-index: 0; }
+.road__step { z-index: 1; }
+.road__n { transition: transform .45s var(--ease), background-color .45s, color .45s, box-shadow .45s; }
+.road__step.is-reached .road__n { transform: scale(1.32); background: linear-gradient(135deg, #f3dfa9, #d4aa57); color: #16110a; border-color: var(--gold-soft); box-shadow: 0 0 22px rgba(217,181,107,.55); }
+@media (prefers-reduced-motion: reduce) { .road__n { transition: none; } }
+/* Vorschaubilder: Höhe aus dem Seitenverhältnis, nicht aus dem height-Attribut
+   (sonst 900 px hoch und stark vergrößert – „groß und verpixelt“ am Handy) */
+.vorschau__bild img { height: auto; }
+
+/* Theorie: Foto oben */
+.theorie__foto { margin: 6px 0 0; }
+.theorie__foto img { width: 100%; height: auto; aspect-ratio: 1600 / 1067; object-fit: cover; border-radius: 18px; border: 1px solid var(--line); }
+.theorie__foto figcaption { margin-top: 10px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* Theorie: Zeitstrahl aller Lektionen */
+.zeitstrahl { list-style: none; margin: 0; padding: 0 0 0 52px; position: relative; display: grid; gap: 34px; }
+.zeitstrahl::before { content: ""; position: absolute; left: 19px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(var(--gold), rgba(217,181,107,.15)); }
+.lektion { position: relative; min-width: 0; }
+.lektion__nr { position: absolute; left: -52px; top: 0; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-family: var(--display); font-weight: 800; font-size: 16px; color: #16110a; background: linear-gradient(135deg, #f3dfa9, #d4aa57); box-shadow: 0 0 0 5px var(--night); }
+.lektion--bald .lektion__nr { background: var(--card-solid); color: var(--muted); border: 1.5px dashed rgba(217,181,107,.5); }
+.lektion__abend { margin: 0 0 2px; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+.lektion__titel { margin: 0 0 8px; font-family: var(--display); font-weight: 800; font-size: clamp(21px, 3.2vw, 30px); line-height: 1.15; text-wrap: balance; overflow-wrap: anywhere; hyphens: auto; }
+.lektion__text { margin: 0 0 16px; max-width: 62ch; color: var(--muted); }
+.lektion .folien { margin-bottom: 4px; }
+.lektion .gruppe { margin-top: 16px; }
+.pause--lektion { margin: 20px 0 0; width: 100%; }
+@media (max-width: 760px) { .pause--lektion { grid-template-columns: 1fr; } }
