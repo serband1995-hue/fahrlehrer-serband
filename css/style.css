@@ -745,3 +745,6 @@ body.lupe-offen { overflow: hidden; }
 .lektion .gruppe { margin-top: 16px; }
 .pause--lektion { margin: 20px 0 0; width: 100%; }
 @media (max-width: 760px) { .pause--lektion { grid-template-columns: 1fr; } }
+/* Folien-Reihen: keine Scrollleiste (wirkte am Handy wie ein brauner Balken); die angeschnittene nächste Folie zeigt, dass man wischen kann */
+.folien, .vorschau { scrollbar-width: none; }
+.folien::-webkit-scrollbar, .vorschau::-webkit-scrollbar { display: none; }
