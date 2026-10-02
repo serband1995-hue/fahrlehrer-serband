@@ -748,3 +748,13 @@ body.lupe-offen { overflow: hidden; }
 /* Folien-Reihen: keine Scrollleiste (wirkte am Handy wie ein brauner Balken); die angeschnittene nächste Folie zeigt, dass man wischen kann */
 .folien, .vorschau { scrollbar-width: none; }
 .folien::-webkit-scrollbar, .vorschau::-webkit-scrollbar { display: none; }
+
+/* Theorie: kleiner Sprungknopf zum Reaktionstest */
+.mini-knopf {
+  display: inline-flex; align-items: center; gap: .45em;
+  margin: 1rem 0 1.5rem; padding: .5rem .95rem; min-height: 40px;
+  border: 1px solid rgba(255,255,255,.22); border-radius: 999px;
+  background: rgba(255,255,255,.06); color: inherit;
+  font-size: .9rem; font-weight: 600; text-decoration: none;
+}
+.mini-knopf:hover, .mini-knopf:focus-visible { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.4); }
