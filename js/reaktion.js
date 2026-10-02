@@ -26,6 +26,15 @@ const board = (() => {
     return data;
   };
   const list = $("#board");
+  // „Rekord“ = Platz 1 der Bestenliste; leuchtet kurz auf, wenn er gebrochen wird
+  const rekordEl = $("#gameBest");
+  let rekordMs = 0;
+  function rekord(ms) {
+    if (!rekordEl || !(ms > 0)) return;
+    rekordEl.textContent = ms + " ms";
+    if (rekordMs && ms < rekordMs) { rekordEl.classList.remove("neu"); void rekordEl.offsetWidth; rekordEl.classList.add("neu"); }
+    rekordMs = ms;
+  }
   let me = store.get("serband-name") || "";
   async function load() {
     if (!list) return;
@@ -36,6 +45,7 @@ const board = (() => {
         list.innerHTML = '<li class="board__empty">Noch leer – sei die oder der Erste!</li>';
         return;
       }
+      rekord(rows[0].ms);
       rows.forEach((r) => {
         const li = document.createElement("li");
         li.innerHTML = "<b></b><span></span><em></em>";
@@ -70,12 +80,10 @@ const board = (() => {
 function setupGame() {
   const btn = $("#light"), msg = $("#lightMsg");
   const lamps = $$(".light__lamp", btn);
-  const tEl = $("#gameTime"), bEl = $("#gameBest"), dEl = $("#gameDist");
+  const tEl = $("#gameTime"), dEl = $("#gameDist");
   // gleiche Grenzen wie die Bestenliste auf dem Server: darunter geraten, darüber abgelenkt
   const MIN_MS = 100, MAX_MS = 1500;
   let state = "idle", timer = null, t0 = 0, swallow = false;
-  const best = parseInt(store.get("serband-best") || "", 10);
-  if (best >= MIN_MS && best <= MAX_MS) bEl.textContent = best + " ms";
   const reset = () => lamps.forEach((l) => (l.className = "light__lamp"));
   const verdict = (ms) => ms < 230 ? "Blitzreflex!" : ms < 300 ? "Sehr stark!" : ms < 400 ? "Solide!" : "Nochmal, ganz ruhig";
   const shake = () => { btn.classList.remove("wackelt"); void btn.offsetWidth; btn.classList.add("wackelt"); };
@@ -130,12 +138,6 @@ function setupGame() {
     if (ms > MAX_MS) { msg.textContent = "Abgelenkt? Nochmal!"; return; }
     msg.textContent = verdict(ms) + " Nochmal?";
     showEntry(ms);
-    const prev = parseInt(store.get("serband-best") || "", 10);
-    if (!(prev >= MIN_MS && prev <= MAX_MS) || ms < prev) {
-      store.set("serband-best", ms);
-      bEl.textContent = ms + " ms";
-      bEl.classList.remove("neu"); void bEl.offsetWidth; bEl.classList.add("neu");
-    }
   };
   // Eintragen in die Bestenliste
   const form = $("#entry"), input = $("#entryName"), note = $("#entryMsg"), sendBtn = $("button", form);
