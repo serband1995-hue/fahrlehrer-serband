@@ -12,7 +12,7 @@ export const CONFIG = {
   links: {
     // Die beiden Buchungskalender
     kalenderSchalter: "https://service.fahrschule-boost.de/widget/bookings/fahrlehrer-serband",
-    kalenderAutomatik: "https://service.fahrschule-boost.de/widget/bookings/geteilter-kalender-1",
+    kalenderAutomatik: "https://service.fahrschule-boost.de/widget/bookings/geteilter-kalender-1?user_id=HAT9XdpG8Zo71cfatl5L",
     // Die Fahr-Akademie (Lern-App mit Videos)
     akademie: "https://serband1995-hue.github.io/Fahr-Akademie-/",
     // Google-Profil der Fahrschule Boost: direkt „Rezension schreiben“ (auch der QR-Code)
