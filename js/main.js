@@ -282,10 +282,13 @@ function setupGame() {
   });
 }
 
-/* ---------- Bewertungen: ruhige Wischreihe ----------
-   Eine Reihe zum Selberwischen (am Computer mit Pfeilen), nichts läuft von allein.
-   Früher ein Laufband: dessen über 20.000 px breite, verschobene Ebene zeichnete
-   iPhone-Safari nach dem Hin- und Herscrollen nur noch in Teilen (Karten abgeschnitten). */
+/* ---------- Bewertungen: Laufband ----------
+   Läuft langsam von allein, wischen geht jederzeit. Bewegt wird die normale
+   Scrollposition der Reihe (scrollLeft), keine verschobene Riesenebene: eine über
+   20.000 px breite transform-Ebene zeichnete iPhone-Safari nach dem Hin- und
+   Herscrollen nur noch in Teilen (Karten abgeschnitten). Die Karten stehen zweimal
+   in der Reihe, damit sie ohne Sprung endlos läuft. Bei „Bewegung reduzieren“:
+   nur wischen, nichts läuft von allein. */
 function setupReviews() {
   const box = $("#reviews");
   // Einzige Quelle ist die Verwaltung der Fahr-Akademie (Supabase): nur dort sichtbare
@@ -319,60 +322,46 @@ function setupReviews() {
   const row = document.createElement("div");
   row.className = "reviews__row";
   row.tabIndex = 0;
-  row.setAttribute("aria-label", "Bewertungen, seitlich wischen");
-  const nav = document.createElement("div");
-  nav.className = "reviews__nav";
-  nav.innerHTML = '<button type="button" class="reviews__pfeil" data-dir="-1" aria-label="Vorige Bewertungen">‹</button><span class="reviews__stand" aria-live="polite"></span><button type="button" class="reviews__pfeil" data-dir="1" aria-label="Nächste Bewertungen">›</button>';
-  const stand = $(".reviews__stand", nav);
+  row.setAttribute("aria-label", "Bewertungen von Fahrschülern, seitlich wischen");
+  const laeuft = !reducedMotion;
 
   // Karten in kleinen Portionen zwischen zwei Bildern anlegen – alle auf einmal
   // blockierten auf schwächeren Handys spürbar das Scrollen
   const pause = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
   async function build() {
-    box.replaceChildren(row, nav);
+    box.replaceChildren(row);
     row.replaceChildren();
-    for (let k = 0; k < list.length; k += 8) {
-      const f = document.createDocumentFragment();
-      list.slice(k, k + 8).forEach((b, n) => f.append(card(b, k + n)));
-      row.append(f);
-      await pause();
+    const durchgaenge = laeuft ? 2 : 1;
+    for (let d = 0; d < durchgaenge; d++) {
+      for (let k = 0; k < list.length; k += 8) {
+        const f = document.createDocumentFragment();
+        list.slice(k, k + 8).forEach((b, n) => {
+          const c = card(b, k + n);
+          if (d) {
+            // Kopie nur fürs endlose Laufen: für Vorleser und Tab-Taste unsichtbar, antippen geht
+            c.setAttribute("aria-hidden", "true"); c.classList.add("is-copy");
+            $(".review__more", c).tabIndex = -1;
+          }
+          f.append(c);
+        });
+        row.append(f);
+        await pause();
+      }
     }
     measure();
-    zeigeStand();
   }
 
-  // lange Texte bekommen „Ganze Bewertung lesen“ (erst alles messen, dann ändern)
+  // Breite eines Durchgangs; lange Texte bekommen „Ganze Bewertung lesen“
+  let haelfte = 0;
   function measure() {
     const karten = $$(".review", row);
-    const lang = karten.map((c) => { const t = $(".review__text", c); return !!c.dataset.gekuerzt || t.scrollHeight > t.clientHeight + 2; });
-    karten.forEach((c, k) => c.classList.toggle("is-long", lang[k]));
+    const orig = karten.filter((c) => !c.classList.contains("is-copy"));
+    const kopie = karten.find((c) => c.classList.contains("is-copy"));
+    haelfte = kopie ? kopie.offsetLeft - orig[0].offsetLeft : 0;
+    // erst alles messen, dann alles ändern (sonst ein neues Seitenlayout je Karte)
+    const lang = new Map(orig.map((c) => { const t = $(".review__text", c); return [c.dataset.i, !!c.dataset.gekuerzt || t.scrollHeight > t.clientHeight + 2]; }));
+    karten.forEach((c) => c.classList.toggle("is-long", !!lang.get(c.dataset.i)));
   }
-
-  // „3–4 von 37“ und Pfeile an den Enden abschalten
-  function zeigeStand() {
-    const karten = $$(".review", row);
-    if (!karten.length) return;
-    const links = row.scrollLeft, rechts = links + row.clientWidth;
-    let erste = -1, letzte = -1;
-    karten.forEach((c, k) => {
-      const a = c.offsetLeft - row.offsetLeft, e = a + c.offsetWidth;
-      if (a >= links - 8 && e <= rechts + 8) { if (erste < 0) erste = k; letzte = k; }
-    });
-    if (erste < 0) { erste = letzte = Math.round(links / (karten[0].offsetWidth + 16)); }
-    stand.textContent = (erste === letzte ? erste + 1 : `${erste + 1}–${letzte + 1}`) + " von " + karten.length;
-    $$(".reviews__pfeil", nav).forEach((b) => {
-      b.disabled = +b.dataset.dir < 0 ? links <= 2 : rechts >= row.scrollWidth - 2;
-    });
-  }
-  let st = 0;
-  row.addEventListener("scroll", () => { cancelAnimationFrame(st); st = requestAnimationFrame(zeigeStand); }, { passive: true });
-  nav.addEventListener("click", (e) => {
-    const b = e.target.closest(".reviews__pfeil");
-    if (!b) return;
-    const k = $(".review", row);
-    const schritt = k ? Math.max(1, Math.floor(row.clientWidth / (k.offsetWidth + 16))) * (k.offsetWidth + 16) : row.clientWidth;
-    row.scrollBy({ left: +b.dataset.dir * schritt, behavior: reducedMotion ? "auto" : "smooth" });
-  });
 
   // Tippen auf eine Karte öffnet die ganze Bewertung
   row.addEventListener("click", (e) => {
@@ -386,6 +375,40 @@ function setupReviews() {
     $("#reviewSheet .sheet__body").scrollTop = 0;
     openSheet($("#reviewSheet"));
   });
+
+  if (laeuft) {
+    // Anhalten: Finger drauf, Maus drüber, Tastatur-Fokus, offenes Fenster;
+    // nach dem Wischen kurz stehen lassen (auch während das Wischen ausrollt)
+    let x = 0, gesetzt = -1, halt = 0, hover = false, fokus = false, finger = false, sichtbar = false, last = 0;
+    const kurzHalten = (ms) => (halt = Math.max(halt, performance.now() + ms));
+    row.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") hover = true; });
+    row.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") hover = false; });
+    row.addEventListener("touchstart", () => { finger = true; }, { passive: true });
+    addEventListener("touchend", () => { if (finger) { finger = false; kurzHalten(2500); } }, { passive: true });
+    addEventListener("touchcancel", () => { finger = false; }, { passive: true });
+    row.addEventListener("focusin", () => (fokus = true));
+    row.addEventListener("focusout", (e) => { if (!row.contains(e.relatedTarget)) fokus = false; });
+    row.addEventListener("wheel", () => kurzHalten(2500), { passive: true });
+    // eigene Bewegung von Wischen unterscheiden: weicht die Position ab, war es der Mensch
+    row.addEventListener("scroll", () => {
+      if (Math.abs(row.scrollLeft - gesetzt) > 2) { x = row.scrollLeft; kurzHalten(1500); }
+    }, { passive: true });
+    new IntersectionObserver((en) => (sichtbar = en[0].isIntersecting)).observe(row);
+    const schritt = (now) => {
+      requestAnimationFrame(schritt);
+      const dt = Math.min(64, now - (last || now)); last = now;
+      if (!sichtbar || !haelfte) return;
+      // endlos in beide Richtungen: immer innerhalb des ersten Durchgangs bleiben
+      if (row.scrollLeft >= haelfte) { x = row.scrollLeft - haelfte; gesetzt = Math.round(x); row.scrollLeft = gesetzt; }
+      else if (row.scrollLeft < 1 && (finger || now < halt)) { x = row.scrollLeft + haelfte; gesetzt = Math.round(x); row.scrollLeft = gesetzt; }
+      if (finger || hover || fokus || now < halt || !$("#reviewSheet").hidden) return;
+      x += 0.024 * dt; // rund 24 px pro Sekunde
+      if (x >= haelfte) x -= haelfte;
+      const ziel = Math.round(x);
+      if (ziel !== row.scrollLeft) { gesetzt = ziel; row.scrollLeft = ziel; }
+    };
+    requestAnimationFrame(schritt);
+  }
 
   box.innerHTML = '<p class="reviews__laden">Bewertungen werden geladen …</p>';
   // Bereich entfernen; die Seite wird kürzer, also Scroll-Auslöser neu berechnen
@@ -411,7 +434,7 @@ function setupReviews() {
     io.observe(box);
   } else laden();
   let rt = 0;
-  addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { measure(); zeigeStand(); }, 150); });
+  addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(measure, 150); });
 }
 
 /* ---------- Buchen: Umschalter Schaltung / Automatik ---------- */

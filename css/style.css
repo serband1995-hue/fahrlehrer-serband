@@ -703,14 +703,11 @@ body.lupe-offen { overflow: hidden; }
 .sprachen li { padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(217,181,107,.35); background: rgba(217,181,107,.08); font-size: 14px; line-height: 1.4; color: var(--text); unicode-bidi: isolate; }
 .schritte p + p { margin-top: 10px; }
 
-/* Bewertungen: ruhige Wischreihe statt Laufband (02.10.2026) */
+/* Bewertungen: Laufband über die normale Scrollposition (02.10.2026) – kein transform,
+   kein will-change, keine Maske: iPhone-Safari zeichnet so auch sehr lange Reihen vollständig */
 .reviews { display: block; }
-.reviews__row { display: flex; gap: 16px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding: 0 var(--gutter); padding: 4px var(--gutter) 14px; cursor: auto; touch-action: auto; -webkit-mask-image: none; mask-image: none; scrollbar-width: thin; scrollbar-color: rgba(217,181,107,.35) transparent; }
+.reviews__row { display: flex; gap: 16px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; padding: 4px var(--gutter) 14px; cursor: auto; touch-action: auto; -webkit-mask-image: none; mask-image: none; scrollbar-width: none; }
+.reviews__row::-webkit-scrollbar { display: none; }
 .reviews__row:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
-.review { scroll-snap-align: start; user-select: text; -webkit-user-select: text; }
-.reviews__nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 6px; padding: 0 var(--gutter); }
-.reviews__stand { min-width: 9ch; text-align: center; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.reviews__pfeil { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(241,220,166,.4); background: rgba(10,16,20,.8); color: var(--text); font-size: 22px; line-height: 1; cursor: pointer; display: grid; place-items: center; }
-.reviews__pfeil:disabled { opacity: .35; cursor: default; }
-.reviews__pfeil:not(:disabled):hover { border-color: var(--gold); }
+@media (prefers-reduced-motion: reduce) { .reviews__row { scroll-snap-type: x mandatory; scroll-padding: 0 var(--gutter); scrollbar-width: thin; } .review { scroll-snap-align: start; } }
 .stimmen > *, .reviews { min-width: 0; }
