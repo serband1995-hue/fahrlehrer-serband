@@ -42,6 +42,7 @@ export const CONFIG = {
     typ: { video: "img/schleife-typ.mp4", videoHandy: "img/schleife-typ-hoch.mp4", bild: "img/szene-typ.jpg", bildHandy: "img/szene-typ-hoch.jpg", fokus: "60% 30%", fokusHandy: "22% 50%" },
     versprechen: { video: "img/schleife-versprechen.mp4", videoHandy: "img/schleife-versprechen-hoch.mp4", bild: "img/szene-versprechen.jpg", bildHandy: "img/szene-versprechen-hoch.jpg", fokus: "68% 50%", fokusHandy: "50% 50%" },
     werkzeuge: { video: "img/schleife-werkzeuge.mp4", videoHandy: "img/schleife-werkzeuge-hoch.mp4", bild: "img/szene-werkzeuge.jpg", bildHandy: "img/szene-werkzeuge-hoch.jpg", fokus: "50% 50%", fokusHandy: "50% 50%" },
+    unterricht: { video: "img/schleife-werkzeuge.mp4", videoHandy: "img/schleife-werkzeuge-hoch.mp4", bild: "img/szene-werkzeuge.jpg", bildHandy: "img/szene-werkzeuge-hoch.jpg", fokus: "50% 50%", fokusHandy: "50% 50%" },
     weg: { video: "img/schleife-weg.mp4", videoHandy: "img/schleife-weg-hoch.mp4", bild: "img/szene-weg.jpg", bildHandy: "img/szene-weg-hoch.jpg", fokus: "58% 50%", fokusHandy: "50% 50%" },
     los: { video: "img/schleife-los.mp4", videoHandy: "img/schleife-los-hoch.mp4", bild: "img/szene-los.jpg", bildHandy: "img/szene-los-hoch.jpg", fokus: "65% 50%", fokusHandy: "50% 50%" },
     epilog: { video: "img/schleife-prolog.mp4", videoHandy: "img/schleife-prolog-hoch.mp4", bild: "img/szene-prolog.jpg", bildHandy: "img/szene-prolog-hoch.jpg", fokus: "68% 50%", fokusHandy: "50% 50%" }
@@ -55,7 +56,16 @@ export const CONFIG = {
   ],
 
   // Sprachen der Fahr-Akademie (App-Tour, Kapitel IV). Neue Sprache einfach anhängen.
-  sprachen: ["Deutsch", "Türkçe", "English", "العربية", "Español"],
+  // Sprachen der Fahr-Akademie, Namen wie in der App (Stand 02.10.2026: Deutsch + 17).
+  // Neue Sprache in der Akademie = hier eine Zeile ergänzen; Zahl und Liste auf der Seite folgen.
+  sprachen: [
+    { code: "de", name: "Deutsch" }, { code: "tr", name: "Türkçe" }, { code: "en", name: "English" },
+    { code: "ar", name: "العربية" }, { code: "es", name: "Español" }, { code: "ru", name: "Русский" },
+    { code: "sr", name: "Srpski" }, { code: "ckb", name: "کوردی (سۆرانی)" }, { code: "kmr", name: "Kurdî (Kurmancî)" },
+    { code: "hi", name: "हिन्दी" }, { code: "ur", name: "اردو" }, { code: "vi", name: "Tiếng Việt" },
+    { code: "rif", name: "Tarifit" }, { code: "fa", name: "فارسی" }, { code: "ps", name: "پښتو" },
+    { code: "el", name: "Ελληνικά" }, { code: "am", name: "አማርኛ" }, { code: "ti", name: "ትግርኛ" }
+  ],
 
   // Bestenliste des Reaktionstests (Supabase-Projekt „fahr-akademie“, getrennte Tabelle).
   // Öffentlicher Schlüssel (für Webseiten gedacht). Was er darf, regeln die Datenbankregeln:

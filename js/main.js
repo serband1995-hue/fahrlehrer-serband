@@ -74,9 +74,21 @@ function fillContent() {
     else img.removeAttribute("srcset");
     img.src = f.klein || src;
   });
-  // Sprachen der Fahr-Akademie aus der Konfiguration („A, B und C“)
-  const sp = CONFIG.sprachen || [];
-  if (sp.length) $$("[data-sprachen]").forEach((el) => { const w = sp.map((x) => "\u2068" + x + "\u2069"); el.textContent = w.length > 1 ? w.slice(0, -1).join(", ") + " und " + w[w.length - 1] : w[0]; });
+  // Sprachen der Fahr-Akademie aus der Konfiguration: Zahl der weiteren Sprachen und Liste
+  const sp = (CONFIG.sprachen || []).map((x) => (typeof x === "string" ? { name: x } : x));
+  if (sp.length) {
+    $$("[data-sprachen-zahl]").forEach((el) => (el.textContent = sp.length - 1));
+    $$("[data-sprachen-liste]").forEach((ul) => {
+      ul.replaceChildren(...sp.map((x) => {
+        const li = document.createElement("li");
+        const b = document.createElement("bdi");
+        b.textContent = x.name;
+        if (x.code) b.lang = x.code;
+        li.append(b);
+        return li;
+      }));
+    });
+  }
   try {
     const qr = window.qrcode(0, "M");
     qr.addData(L.bewerten);
