@@ -282,10 +282,10 @@ function setupGame() {
   });
 }
 
-/* ---------- Bewertungen: Laufband ----------
-   Zwei Reihen gegenläufig (am Handy eine). Jede Reihe enthält die Karten doppelt,
-   damit sie ohne Sprung endlos läuft. Anfassen, Maus darüber oder Tastatur-Fokus
-   hält sie an; ziehen/wischen geht auch. Bei „Bewegung reduzieren“: normale Wischliste. */
+/* ---------- Bewertungen: ruhige Wischreihe ----------
+   Eine Reihe zum Selberwischen (am Computer mit Pfeilen), nichts läuft von allein.
+   Früher ein Laufband: dessen über 20.000 px breite, verschobene Ebene zeichnete
+   iPhone-Safari nach dem Hin- und Herscrollen nur noch in Teilen (Karten abgeschnitten). */
 function setupReviews() {
   const box = $("#reviews");
   // Einzige Quelle ist die Verwaltung der Fahr-Akademie (Supabase): nur dort sichtbare
@@ -315,87 +315,69 @@ function setupReviews() {
     el.dataset.i = i;
     return el;
   };
-  const wide = matchMedia("(min-width: 760px)");
-  let rows = [];
 
-  let spaeter = false, bauNr = 0;
+  const row = document.createElement("div");
+  row.className = "reviews__row";
+  row.tabIndex = 0;
+  row.setAttribute("aria-label", "Bewertungen, seitlich wischen");
+  const nav = document.createElement("div");
+  nav.className = "reviews__nav";
+  nav.innerHTML = '<button type="button" class="reviews__pfeil" data-dir="-1" aria-label="Vorige Bewertungen">‹</button><span class="reviews__stand" aria-live="polite"></span><button type="button" class="reviews__pfeil" data-dir="1" aria-label="Nächste Bewertungen">›</button>';
+  const stand = $(".reviews__stand", nav);
+
   // Karten in kleinen Portionen zwischen zwei Bildern anlegen – alle auf einmal
   // blockierten auf schwächeren Handys spürbar das Scrollen
   const pause = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
   async function build() {
-    if (rows.some((r) => r.drag)) { spaeter = true; return; }
-    spaeter = false;
-    const nr = ++bauNr;
-    rows = [];
-    box.replaceChildren();
-    const n = wide.matches && list.length > 5 ? 2 : 1;
-    const neu = [];
-    for (let r = 0; r < n; r++) {
-      const row = document.createElement("div");
-      row.className = "reviews__row";
-      const rail = document.createElement("div");
-      rail.className = "reviews__rail";
-      row.append(rail);
-      box.append(row);
-      neu.push({ row, rail, items: list.map((b, i) => [b, i]).filter((_, i) => i % n === r) });
+    box.replaceChildren(row, nav);
+    row.replaceChildren();
+    for (let k = 0; k < list.length; k += 8) {
+      const f = document.createDocumentFragment();
+      list.slice(k, k + 8).forEach((b, n) => f.append(card(b, k + n)));
+      row.append(f);
+      await pause();
     }
-    const portion = async (rail, items, kopie) => {
-      for (let k = 0; k < items.length; k += 8) {
-        const f = document.createDocumentFragment();
-        items.slice(k, k + 8).forEach(([b, i]) => {
-          const c = card(b, i);
-          if (kopie) {
-            // Kopien nur fürs endlose Laufen: für Vorleser und Tab-Taste unsichtbar, antippen geht
-            c.setAttribute("aria-hidden", "true"); c.classList.add("is-copy");
-            $(".review__more", c).tabIndex = -1;
-          }
-          f.append(c);
-        });
-        rail.append(f);
-        await pause();
-        if (nr !== bauNr) return false;
-      }
-      return true;
-    };
-    for (const { row, rail, items } of neu) {
-      if (!(await portion(rail, items, false))) return;
-      if (!reducedMotion) {
-        // eine Hälfte muss breiter sein als die Reihe, sonst läuft eine Lücke mit
-        const satz = rail.scrollWidth + 16;
-        const mal = Math.max(1, Math.ceil(row.clientWidth / satz));
-        for (let k = 1; k < mal * 2; k++) if (!(await portion(rail, items, true))) return;
-        // Fokus darf die Reihe nicht selbst verschieben – das macht die Laufband-Position
-        row.addEventListener("scroll", () => (row.scrollLeft = 0));
-      }
-    }
-    if (nr !== bauNr) return;
-    rows = neu.map(({ row, rail }, r) => ({ row, rail, x: 0, vx: 0, dir: r % 2 ? 1 : -1, w: 0, hover: false, focus: false, until: 0, drag: null }));
     measure();
+    zeigeStand();
   }
 
-  // Breite einer Hälfte; lange Texte bekommen „Ganze Bewertung lesen“
+  // lange Texte bekommen „Ganze Bewertung lesen“ (erst alles messen, dann ändern)
   function measure() {
-    let zuSchmal = false;
-    rows.forEach((o) => {
-      const cards = $$(".review", o.rail), half = cards.length / 2;
-      o.w = reducedMotion || !half ? 0 : cards[half].offsetLeft - cards[0].offsetLeft;
-      if (o.w && o.w < o.row.clientWidth) zuSchmal = true;
-      if (o.dir > 0 && o.w && o.x === 0) o.x = -o.w; // rechtslaufende Reihe startet versetzt
-    });
-    // erst alles messen, dann alles ändern – abwechselnd messen/ändern zwingt den
-    // Browser bei jeder Karte zu einem neuen Seitenlayout (bei 74 Karten spürbar)
-    const karten = $$(".review", box), orig = karten.filter((c) => !c.classList.contains("is-copy"));
-    const lang = new Map(orig.map((c) => { const t = $(".review__text", c); return [c.dataset.i, !!c.dataset.gekuerzt || t.scrollHeight > t.clientHeight + 2]; }));
-    karten.forEach((c) => c.classList.toggle("is-long", !!lang.get(c.dataset.i)));
-    if (zuSchmal) build();
+    const karten = $$(".review", row);
+    const lang = karten.map((c) => { const t = $(".review__text", c); return !!c.dataset.gekuerzt || t.scrollHeight > t.clientHeight + 2; });
+    karten.forEach((c, k) => c.classList.toggle("is-long", lang[k]));
   }
 
-  // Tippen auf eine Karte öffnet die ganze Bewertung (nicht nach dem Ziehen)
-  box.addEventListener("click", (e) => {
+  // „3–4 von 37“ und Pfeile an den Enden abschalten
+  function zeigeStand() {
+    const karten = $$(".review", row);
+    if (!karten.length) return;
+    const links = row.scrollLeft, rechts = links + row.clientWidth;
+    let erste = -1, letzte = -1;
+    karten.forEach((c, k) => {
+      const a = c.offsetLeft - row.offsetLeft, e = a + c.offsetWidth;
+      if (a >= links - 8 && e <= rechts + 8) { if (erste < 0) erste = k; letzte = k; }
+    });
+    if (erste < 0) { erste = letzte = Math.round(links / (karten[0].offsetWidth + 16)); }
+    stand.textContent = (erste === letzte ? erste + 1 : `${erste + 1}–${letzte + 1}`) + " von " + karten.length;
+    $$(".reviews__pfeil", nav).forEach((b) => {
+      b.disabled = +b.dataset.dir < 0 ? links <= 2 : rechts >= row.scrollWidth - 2;
+    });
+  }
+  let st = 0;
+  row.addEventListener("scroll", () => { cancelAnimationFrame(st); st = requestAnimationFrame(zeigeStand); }, { passive: true });
+  nav.addEventListener("click", (e) => {
+    const b = e.target.closest(".reviews__pfeil");
+    if (!b) return;
+    const k = $(".review", row);
+    const schritt = k ? Math.max(1, Math.floor(row.clientWidth / (k.offsetWidth + 16))) * (k.offsetWidth + 16) : row.clientWidth;
+    row.scrollBy({ left: +b.dataset.dir * schritt, behavior: reducedMotion ? "auto" : "smooth" });
+  });
+
+  // Tippen auf eine Karte öffnet die ganze Bewertung
+  row.addEventListener("click", (e) => {
     const c = e.target.closest(".review");
     if (!c || !c.classList.contains("is-long")) return;
-    const o = rows.find((r) => r.row.contains(c));
-    if (o && o.moved > 6) return;
     const b = list[+c.dataset.i];
     $("#reviewTitle").textContent = b.name;
     $("#reviewFull").textContent = b.text;
@@ -404,76 +386,6 @@ function setupReviews() {
     $("#reviewSheet .sheet__body").scrollTop = 0;
     openSheet($("#reviewSheet"));
   });
-
-  if (!reducedMotion) {
-    const rowOf = (el) => rows.find((r) => r.row.contains(el));
-    box.addEventListener("pointerover", (e) => { const o = rowOf(e.target); if (o && e.pointerType === "mouse") o.hover = true; });
-    box.addEventListener("pointerout", (e) => { const o = rowOf(e.target); if (o && e.pointerType === "mouse" && !o.row.contains(e.relatedTarget)) o.hover = false; });
-    box.addEventListener("pointerdown", (e) => {
-      const o = rowOf(e.target);
-      if (!o || e.button > 0) return;
-      o.drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, pos: o.x, last: e.clientX, on: false };
-      o.moved = 0; o.vx = 0;
-    });
-    box.addEventListener("pointermove", (e) => {
-      const o = rows.find((r) => r.drag && r.drag.id === e.pointerId);
-      if (!o) return;
-      if (e.pointerType === "mouse" && e.buttons === 0) return up(e); // außerhalb losgelassen
-      const d = o.drag, dx = e.clientX - d.x0;
-      if (!d.on) {
-        // erst waagerecht ziehen, dann festhalten – senkrecht bleibt normales Scrollen
-        if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(e.clientY - d.y0)) return;
-        d.on = true;
-        try { o.row.setPointerCapture(e.pointerId); } catch (err) {}
-        o.row.classList.add("is-drag");
-      }
-      o.vx = e.clientX - d.last; d.last = e.clientX;
-      o.moved = Math.abs(dx);
-      o.x = d.pos + dx;
-    });
-    const up = (e) => {
-      const o = rows.find((r) => r.drag && r.drag.id === e.pointerId);
-      if (!o) return;
-      o.drag = null;
-      o.row.classList.remove("is-drag");
-      o.until = performance.now() + (e.pointerType === "mouse" ? 0 : 1800); // nach dem Wischen kurz stehen lassen
-      setTimeout(() => (o.moved = 0), 0);
-      if (spaeter) build();
-    };
-    // auf dem ganzen Fenster hören: Loslassen außerhalb der Reihe beendet das Ziehen auch
-    addEventListener("pointerup", up);
-    addEventListener("pointercancel", up);
-    // Tastatur: fokussierte Karte ins Bild holen und die Reihe anhalten
-    box.addEventListener("focusin", (e) => {
-      const o = rowOf(e.target), c = e.target.closest(".review");
-      if (!o || !c) return;
-      o.focus = true;
-      o.row.scrollLeft = 0;
-      const left = c.offsetLeft + o.x, room = o.row.clientWidth - c.offsetWidth;
-      if (left < 16 || left > room - 16) o.x = -c.offsetLeft + Math.max(16, room / 2);
-    });
-    box.addEventListener("focusout", (e) => { const o = rowOf(e.target); if (o && !o.row.contains(e.relatedTarget)) o.focus = false; });
-
-    let visible = false, last = 0;
-    new IntersectionObserver((en) => (visible = en[0].isIntersecting)).observe(box);
-    gsap.ticker.add(() => {
-      const now = performance.now(), dt = Math.min(64, now - (last || now)); last = now;
-      if (!visible) return;
-      const halt = !$("#reviewSheet").hidden;
-      rows.forEach((o) => {
-        if (!o.w) return;
-        if (!o.drag) {
-          o.x += o.vx; o.vx *= 0.92;
-          if (!o.hover && !o.focus && !halt && now > o.until && Math.abs(o.vx) < 0.3) o.x += o.dir * 0.02 * dt; // rund 20 px pro Sekunde
-        }
-        // endlos: immer innerhalb einer Hälfte bleiben
-        while (o.x > 0) o.x -= o.w;
-        while (o.x <= -o.w) o.x += o.w;
-        if (o.drag && o.drag.on) o.drag.pos = o.x - (o.drag.last - o.drag.x0);
-        o.rail.style.transform = `translate3d(${o.x.toFixed(2)}px,0,0)`;
-      });
-    });
-  }
 
   box.innerHTML = '<p class="reviews__laden">Bewertungen werden geladen …</p>';
   // Bereich entfernen; die Seite wird kürzer, also Scroll-Auslöser neu berechnen
@@ -499,9 +411,7 @@ function setupReviews() {
     io.observe(box);
   } else laden();
   let rt = 0;
-  addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(measure, 150); });
-  const neu = () => list.length && build();
-  wide.addEventListener ? wide.addEventListener("change", neu) : wide.addListener(neu);
+  addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { measure(); zeigeStand(); }, 150); });
 }
 
 /* ---------- Buchen: Umschalter Schaltung / Automatik ---------- */
