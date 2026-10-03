@@ -97,7 +97,7 @@
 .legal-page { background: radial-gradient(120% 60% at 70% 0%, #10212b 0%, var(--night) 60%); min-height: 100vh; }
 .legal-nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: max(14px, env(safe-area-inset-top)) var(--gutter) 14px; background: linear-gradient(rgba(4,8,11,.92), rgba(4,8,11,.6)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .legal-nav .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
-.legal-nav .brand img { border-radius: 8px; }
+.legal-nav .brand img { display: block; object-fit: contain; }
 .legal-nav .brand span { font-family: var(--display); font-weight: 800; font-stretch: 125%; letter-spacing: .2em; font-size: 13px; }
 .legal { width: min(820px, 100%); margin: 0 auto; padding: clamp(40px, 8vh, 90px) var(--gutter) 80px; }
 .legal .h2 { font-size: clamp(38px, 6vw, 64px); margin-bottom: 28px; }
