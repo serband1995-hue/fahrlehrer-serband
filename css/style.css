@@ -911,4 +911,4 @@ body.lupe-offen { overflow: hidden; }
 .quiz__step { white-space: nowrap; }
 .sheet__head h3 { line-height: 1.15; }
 @media (max-width: 420px) { .sheet__head h3 { font-size: 19px; } }
-.foot__ki { font-size: .78rem; color: var(--muted); }
+.foot__ki { grid-column: 1 / -1; font-size: .78rem; color: var(--muted); }
