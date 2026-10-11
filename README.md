@@ -34,7 +34,6 @@ Was noch fehlt, ist in `config.js` mit `TODO` markiert:
 - `links.bewerten` – direkter Google-Link „Rezension schreiben“ (wird auch als QR-Code gezeigt)
 - `videos.*` und `zahlen` stehen noch in der Konfiguration, werden von der Seite aber derzeit nicht angezeigt
 - Bewertungen – werden in der Verwaltung der Fahr-Akademie gepflegt (Reiter „Bewertungen“, nur Super-Admin) und beim Heranscrollen über `website_bewertungen_liste()` geladen. Laufband „Frag nicht mich. Frag meine Fahrschüler.“ über dem Epilog. Ist alles ausgeblendet, verschwindet der Bereich; bei Netz- oder Serverstörung erscheint „Nochmal versuchen“. `links.bewertungen` = Knopf „Alle Bewertungen auf Google“
-- `datenschutz.html` Abschnitt 4 – Zwischentext ersetzen, sobald die Fahrschule Boost schriftlich nennt, wer für die Buchungsdaten verantwortlich ist und auf welcher Grundlage Daten in die USA gehen
 - **Social-Profil oder Fragen geändert?** Dann das JSON-LD im `<head>` von `index.html` anpassen (`sameAs` bzw. `FAQPage` muss wörtlich zu den sichtbaren Fragen passen).
 
 ## Aufbau
