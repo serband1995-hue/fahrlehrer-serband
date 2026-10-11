@@ -99,6 +99,7 @@ const teilen = (() => {
   if (!btn && $("#entry")) {
     const box = document.createElement("div");
     box.className = "share";
+    box.style.marginTop = "14px"; // bis css/style.css eine Regel für .share hat
     box.innerHTML = '<button class="btn btn--small btn--ghost" type="button" id="shareBtn" hidden><span>Ergebnis teilen</span></button><p class="entry__msg" id="shareMsg" aria-live="polite"></p>';
     $("#entry").after(box);
     btn = $("#shareBtn"); note = $("#shareMsg");
