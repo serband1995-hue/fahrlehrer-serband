@@ -64,14 +64,19 @@
   <!-- ============ START ============ -->
   <section class="chapter chapter--hero" id="prolog" data-kapitel="Start" data-titel="Es geht auch anders">
     <div class="hero">
+      <a class="wer" href="ueber-mich.html">
+        <img class="wer__bild" src="img/serband-gesicht-128.jpg" alt="" width="128" height="128" decoding="async">
+        <span class="wer__text"><b>Serband</b><span>Fahrlehrer · Klasse B und BE</span></span>
+      </a>
       <p class="hero__vor">Frag mal deine Eltern nach ihrer Fahrschule.</p>
       <h1 class="title title--xl"><span class="line"><span>Es geht</span></span><span class="line"><em>auch anders.</em></span></h1>
-      <p class="lead hero__text">Die meisten haben schon Horrorgeschichten über Fahrlehrer gehört. Ich will zeigen, dass es anders geht. Ein Führerschein kostet viel Geld. Dafür verdienst du eine Ausbildung, die Spaß macht und dir mehr mitgibt als nur das Autofahren.</p>
-      <div class="row row--center">
+      <p class="hero__wo"><span>Für Fahrschüler aus Offenbach, Mühlheim und Frankfurt.</span> <span class="hero__boost">Ausbildung über die Fahrschule Boost in Offenbach.</span></p>
+      <div class="row row--center hero__aktionen">
         <a class="btn" href="#los"><span>Termin buchen</span><i class="arrow"></i></a>
-        <a class="btn btn--ghost" href="ueber-mich.html"><span>Wer ist Serband?</span></a>
+        <a class="btn btn--ghost" href="theorie.html#test"><span>Reaktionstest spielen</span></a>
       </div>
-      <p class="prolog__sub">Fahrlehrer Serband · Offenbach am Main</p>
+      <p class="hero__mehr"><a href="#werkzeuge">Lern-App ansehen</a><span aria-hidden="true">·</span><a href="ueber-mich.html">Wer ist Serband?</a></p>
+      <p class="lead hero__text">Die meisten haben schon Horrorgeschichten über Fahrlehrer gehört. Ich will zeigen, dass es anders geht. Ein Führerschein kostet viel Geld. Dafür verdienst du eine Ausbildung, die Spaß macht und dir mehr mitgibt als nur das Autofahren.</p>
     </div>
 
     <nav class="kacheln" aria-labelledby="kachelnTitel">
@@ -116,15 +121,15 @@
     <div class="story story--center story--text">
       <p class="lead">Jeder Fahrlehrer hat seine eigene Art, und nicht jeder passt zu jedem. Das ist gut so.</p>
       <p>Ich kann mich gut in andere hineinversetzen. Ich merke, wenn jemand angespannt ist, auch wenn er es nicht sagt. Ich weiß, wann ein lockerer Spruch die Stimmung löst und wann es ernst werden muss. Bei mir bekommst du beides: Wissen und ein offenes Ohr.</p>
-      <p>Damit ich weiß, wie du tickst, schauen wir am Anfang gemeinsam auf deine Farbe, angelehnt an das Farbmodell von Thomas Erikson: <span class="c c--r">Rot</span>, <span class="c c--y">Gelb</span>, <span class="c c--g">Grün</span> und <span class="c c--b">Blau</span>. Daraus entsteht eine Ausbildung, die zu dir passt.</p>
+      <p>Deshalb frage ich dich am Anfang ganz einfach: Wie möchtest du Rückmeldung bekommen? Kurz und direkt, mit Begründung, in Ruhe oder mit einem Bild vor Augen? Probier es unten aus.</p>
       <p class="quote">Ich gebe den Weg vor, du gibst das Tempo. <em>So kommen wir gemeinsam ans Ziel.</em></p>
     </div>
-    <div class="quiz card" id="quiz">
+    <div class="quiz card" id="quiz" data-quiz="rueckmeldung">
       <div class="quiz__head">
-        <p class="quiz__kicker">Finde deine Farbe</p>
+        <p class="quiz__kicker" id="quizKicker">Wie möchtest du Rückmeldung?</p>
         <p class="quiz__step" id="quizStep">Frage 1 von 4</p>
       </div>
-      <div class="quiz__body" id="quizBody"></div>
+      <div class="quiz__body" id="quizBody" aria-live="polite"></div>
       <p class="quiz__note">Kein wissenschaftlicher Test, sondern ein Anfang für unser erstes Gespräch. Richtig kennen lernen wir uns in der ersten Fahrstunde.</p>
     </div>
   </section>
@@ -377,6 +382,7 @@
       <header class="stimmen__head">
         <p class="quiz__kicker">Google-Bewertungen · Wort für Wort</p>
         <h3 class="stimmen__title">Frag nicht mich.<br><em>Frag meine Fahrschüler.</em></h3>
+        <p class="stimmen__schnitt is-hidden" id="reviewsSummary"><span class="stimmen__sterne" aria-hidden="true">★★★★★</span><b id="reviewsAvg"></b><span id="reviewsCount"></span></p>
         <figure class="zitat">
           <blockquote><p>„Ich hätte mir keinen besseren Fahrlehrer wünschen können.“</p></blockquote>
           <figcaption>Fahrschülerin, Google-Bewertung</figcaption>
@@ -412,6 +418,15 @@
     <footer class="foot">
       <div class="foot__brand"><img class="mk" src="img/logo-symbol.png" alt=""><div><b>SERBAND</b><span>Fahrlehrer in Offenbach am Main</span></div></div>
       <p>Ausbildung über die Fahrschule Boost · Berliner Straße 2 · 63065 Offenbach am Main · <a id="telLink" href="#"></a></p>
+      <div class="social is-hidden" id="socialProfile">
+        <p class="social__label">Folge mir</p>
+        <ul class="social__list">
+          <li><a class="social__link" data-net="instagram" href="#" target="_blank" rel="noopener" hidden><span>Instagram</span><i aria-hidden="true">↗</i></a></li>
+          <li><a class="social__link" data-net="tiktok" href="#" target="_blank" rel="noopener" hidden><span>TikTok</span><i aria-hidden="true">↗</i></a></li>
+          <li><a class="social__link" data-net="youtube" href="#" target="_blank" rel="noopener" hidden><span>YouTube</span><i aria-hidden="true">↗</i></a></li>
+          <li><a class="social__link" data-net="facebook" href="#" target="_blank" rel="noopener" hidden><span>Facebook</span><i aria-hidden="true">↗</i></a></li>
+        </ul>
+      </div>
       <nav id="socialLinks"><a href="ueber-mich.html">Über mich</a><a href="praxis.html">Praxis</a><a href="theorie.html">Theorie</a><a id="impLink" href="impressum.html">Impressum</a><a id="dsLink" href="datenschutz.html">Datenschutz</a></nav>
     </footer>
   </section>
@@ -428,8 +443,11 @@
     </div>
     <div class="sheet__body">
       <div class="sheet__consent" id="sheetConsent">
+        <svg class="sheet__consent-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <p class="sheet__consent-titel">Freie Termine der Fahrschule Boost</p>
         <p>Der Buchungskalender wird von einem externen Buchungsdienst geladen. Dabei wird deine IP-Adresse an diesen Dienst übertragen.</p>
         <button class="btn" type="button" id="sheetLoad"><span>Kalender laden</span></button>
+        <a class="sheet__consent-mehr" href="datenschutz.html" target="_blank" rel="noopener">Mehr dazu im Datenschutz</a>
       </div>
       <iframe id="sheetFrame" title="Buchungskalender" loading="lazy" hidden></iframe>
     </div>
