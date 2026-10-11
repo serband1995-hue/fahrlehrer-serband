@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Theorieunterricht · Serband</title>
 <meta name="description" content="So läuft der Theorieunterricht bei Fahrlehrer Serband in Offenbach: 14 Lektionen an 7 Abenden, mit Gruppenarbeiten statt Folien-Ablesen.">
-<meta name="theme-color" content="#04080b">
+<meta name="theme-color" content="#05080a">
 <link rel="canonical" href="https://www.fahrlehrer-serband.de/theorie.html">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Theorieunterricht · Serband">
@@ -15,6 +15,9 @@
 <link rel="icon" href="img/favicon-64.png?v=2" type="image/png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png?v=2">
 <link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/instrument-serif.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/instrument-serif-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" href="img/serband-unterricht-900.jpg" imagesrcset="img/serband-unterricht-900.jpg 900w, img/serband-unterricht-1600.jpg 1600w" imagesizes="(max-width: 860px) 92vw, 780px" fetchpriority="high">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="legal-page theorie-page">
@@ -43,8 +46,8 @@
 
   <section class="abend" aria-labelledby="warum">
     <p class="kicker">Warum es nicht langweilig ist</p>
-    <h2 class="abend__titel" id="warum">Jeder Lerntyp kommt dran</h2>
-    <p class="abend__text">Manche verstehen am besten, wenn sie etwas sehen, andere, wenn sie es hören, und wieder andere erst, wenn sie es selbst machen. Deshalb ist jeder Abend so gebaut, dass alle drei auf ihre Kosten kommen.</p>
+    <h2 class="abend__titel" id="warum">Sehen, hören, machen</h2>
+    <p class="abend__text">Ein Bild erklärt eine Verkehrssituation schneller als jeder Satz. Eine Regel bleibt hängen, wenn man darüber redet. Und was man selbst ausprobiert hat, vergisst man nicht so schnell. Das gilt für alle, nicht nur für einen bestimmten Typ. Deshalb wechselt jeder Abend zwischen allen dreien.</p>
     <div class="lerntypen">
       <div><b>Sehen</b><p>Eigene Grafiken und Animationen statt Textwüsten: die Promille-Treppe, der tote Winkel, der Anhalteweg Meter für Meter.</p></div>
       <div><b>Hören</b><p>Ich erkläre an echten Fällen aus dem Alltag, viele davon aus Offenbach. Ihr fragt nach, diskutiert und vergleicht eure Ergebnisse.</p></div>
@@ -107,13 +110,17 @@
             <p>Tippe auf die Ampel. Sobald sie grün wird, tippst du so schnell du kannst. Wer zu früh drückt, fährt über Rot.</p>
             <dl class="game__facts">
               <div><dt>Deine Zeit</dt><dd id="gameTime">–</dd></div>
-              <div><dt>Rekord</dt><dd id="gameBest">142 ms</dd></div>
+              <div><dt>Rekord</dt><dd id="gameBest">–</dd></div>
               <div><dt>Reaktionsweg bei 50 km/h</dt><dd id="gameDist">–</dd></div>
             </dl>
+            <div class="share" id="share" hidden>
+              <button class="btn btn--ghost btn--small share__btn" type="button" id="shareBtn"><svg class="share__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Ergebnis teilen</span></button>
+              <p class="share__msg" id="shareMsg" aria-live="polite"></p>
+            </div>
             <form class="entry" id="entry" hidden autocomplete="off">
-              <label for="entryName">Trag dich in die Bestenliste ein:</label>
+              <label for="entryName">Trag dich in die Bestenliste ein. Nur Vor- oder Spitzname, und wenn du unter 16 bist, frag vorher deine Eltern:</label>
               <div class="entry__row">
-                <input id="entryName" name="name" maxlength="15" minlength="2" placeholder="Vorname oder Spitzname" required>
+                <input id="entryName" name="name" maxlength="15" minlength="2" placeholder="Spitzname" required>
                 <button class="btn btn--small" type="submit"><span>Eintragen</span></button>
               </div>
               <p class="entry__msg" id="entryMsg" aria-live="polite"></p>
@@ -220,25 +227,9 @@
       <li class="lektion" id="lektion-7">
         <span class="lektion__nr" aria-hidden="true">7</span>
         <p class="lektion__abend">Lektion 7 · Abend 4</p>
-        <h3 class="lektion__titel">Geschwindigkeit, Abstand, Umwelt</h3>
-        <p class="lektion__text">Warum schon wenige km/h über Leben und Tod entscheiden, wie viel Abstand du brauchst und wie du Sprit sparst.</p>
-        <div class="folien" tabindex="0" aria-label="Folien zu Lektion 7, seitlich wischen">
-        <figure class="folie">
-          <a class="folie__bild" href="img/theorie/a7-aufprall-1600.webp"><img src="img/theorie/a7-aufprall-800.webp" srcset="img/theorie/a7-aufprall-800.webp 800w, img/theorie/a7-aufprall-1600.webp 1600w" sizes="(max-width: 700px) 84vw, 400px" alt="Folie: Wie tief fällst du bei einem Aufprall? Geschwindigkeit als Fallhöhe" width="1600" height="900" loading="lazy" decoding="async"></a>
-          <figcaption><b>Wie tief fällst du?</b> 50 km/h wirken wie ein Sturz aus dem 3. Stock.</figcaption>
-        </figure>
-        <figure class="folie">
-          <a class="folie__bild" href="img/theorie/a7-30-oder-50-1600.webp"><img src="img/theorie/a7-30-oder-50-800.webp" srcset="img/theorie/a7-30-oder-50-800.webp 800w, img/theorie/a7-30-oder-50-1600.webp 1600w" sizes="(max-width: 700px) 84vw, 400px" alt="Folie: 30 oder 50? Anhalteweg, wenn ein Kind auf die Straße läuft" width="1600" height="900" loading="lazy" decoding="async"></a>
-          <figcaption><b>30 oder 50?</b> Bei 30 km/h steht das Auto nach 13,5 m, bei 50 erst nach 27,5 m.</figcaption>
-        </figure>
-        </div>
-      </li>
-      <li class="lektion" id="lektion-8">
-        <span class="lektion__nr" aria-hidden="true">8</span>
-        <p class="lektion__abend">Lektion 8 · Abend 4</p>
         <h3 class="lektion__titel">Andere Verkehrsteilnehmer</h3>
         <p class="lektion__text">Busse, Lkw, Radfahrer, Kinder und ältere Menschen: Wer ist wo besonders gefährdet, und wie nimmst du Rücksicht?</p>
-        <div class="folien" tabindex="0" aria-label="Folien zu Lektion 8, seitlich wischen">
+        <div class="folien" tabindex="0" aria-label="Folien zu Lektion 7, seitlich wischen">
         <figure class="folie">
           <a class="folie__bild" href="img/theorie/a8-lkw-winkel-1600.webp"><img src="img/theorie/a8-lkw-winkel-800.webp" srcset="img/theorie/a8-lkw-winkel-800.webp 800w, img/theorie/a8-lkw-winkel-1600.webp 1600w" sizes="(max-width: 700px) 84vw, 400px" alt="Folie: Wo sieht dich der Lkw-Fahrer nicht? Toter Winkel" width="1600" height="900" loading="lazy" decoding="async"></a>
           <figcaption><b>Wo sieht dich der Lkw-Fahrer nicht?</b> Siehst du ihn nicht im Spiegel, sieht er dich auch nicht.</figcaption>
@@ -246,6 +237,22 @@
         <figure class="folie">
           <a class="folie__bild" href="img/theorie/a8-kinderaugen-1600.webp"><img src="img/theorie/a8-kinderaugen-800.webp" srcset="img/theorie/a8-kinderaugen-800.webp 800w, img/theorie/a8-kinderaugen-1600.webp 1600w" sizes="(max-width: 700px) 84vw, 400px" alt="Folie: Die Welt mit Kinderaugen" width="1600" height="900" loading="lazy" decoding="async"></a>
           <figcaption><b>Die Welt mit Kinderaugen.</b> Ein Kind ist kleiner als dein Auto.</figcaption>
+        </figure>
+        </div>
+      </li>
+      <li class="lektion" id="lektion-8">
+        <span class="lektion__nr" aria-hidden="true">8</span>
+        <p class="lektion__abend">Lektion 8 · Abend 4</p>
+        <h3 class="lektion__titel">Geschwindigkeit, Abstand, Umwelt</h3>
+        <p class="lektion__text">Warum schon wenige km/h über Leben und Tod entscheiden, wie viel Abstand du brauchst und wie du Sprit sparst.</p>
+        <div class="folien" tabindex="0" aria-label="Folien zu Lektion 8, seitlich wischen">
+        <figure class="folie">
+          <a class="folie__bild" href="img/theorie/a7-aufprall-1600.webp"><img src="img/theorie/a7-aufprall-800.webp" srcset="img/theorie/a7-aufprall-800.webp 800w, img/theorie/a7-aufprall-1600.webp 1600w" sizes="(max-width: 700px) 84vw, 400px" alt="Folie: Wie tief fällst du bei einem Aufprall? Geschwindigkeit als Fallhöhe" width="1600" height="900" loading="lazy" decoding="async"></a>
+          <figcaption><b>Wie tief fällst du?</b> 50 km/h wirken wie ein Sturz aus dem 3. Stock.</figcaption>
+        </figure>
+        <figure class="folie">
+          <a class="folie__bild" href="img/theorie/a7-30-oder-50-1600.webp"><img src="img/theorie/a7-30-oder-50-800.webp" srcset="img/theorie/a7-30-oder-50-800.webp 800w, img/theorie/a7-30-oder-50-1600.webp 1600w" sizes="(max-width: 700px) 84vw, 400px" alt="Folie: 30 oder 50? Anhalteweg, wenn ein Kind auf die Straße läuft" width="1600" height="900" loading="lazy" decoding="async"></a>
+          <figcaption><b>30 oder 50?</b> Bei 30 km/h steht das Auto nach 13,5 m, bei 50 erst nach 27,5 m.</figcaption>
         </figure>
         </div>
       </li>
@@ -312,15 +319,11 @@
         <span class="lektion__nr" aria-hidden="true">12</span>
         <p class="lektion__abend">Lektion 12 · Abend 6</p>
         <h3 class="lektion__titel">Lebenslanges Lernen</h3>
-        <p class="lektion__text">Warum man beim Autofahren nie auslernt, wie du am besten lernst, und was in der Probezeit gilt.</p>
+        <p class="lektion__text">Warum man beim Autofahren nie auslernt, was beim Lernen wirklich hilft (sich selbst abfragen, in Abständen wiederholen), und was in der Probezeit gilt.</p>
         <div class="folien" tabindex="0" aria-label="Folien zu Lektion 12, seitlich wischen">
         <figure class="folie">
           <a class="folie__bild" href="img/theorie/a12-lernweg-1600.webp"><img src="img/theorie/a12-lernweg-800.webp" srcset="img/theorie/a12-lernweg-800.webp 800w, img/theorie/a12-lernweg-1600.webp 1600w" sizes="(max-width: 700px) 84vw, 400px" alt="Folie: Lernen beginnt lange vor der Fahrschule" width="1600" height="900" loading="lazy" decoding="async"></a>
           <figcaption><b>Lernen beginnt lange vor der Fahrschule.</b> Von der Rückbank bis zum ersten eigenen Auto.</figcaption>
-        </figure>
-        <figure class="folie">
-          <a class="folie__bild" href="img/theorie/a12-lerntypen-1600.webp"><img src="img/theorie/a12-lerntypen-800.webp" srcset="img/theorie/a12-lerntypen-800.webp 800w, img/theorie/a12-lerntypen-1600.webp 1600w" sizes="(max-width: 700px) 84vw, 400px" alt="Folie: Jeder lernt anders. Sehen, Hören, Machen" width="1600" height="900" loading="lazy" decoding="async"></a>
-          <figcaption><b>Jeder lernt anders.</b> Hier findest du heraus, welcher Lerntyp du bist.</figcaption>
         </figure>
         </div>
       </li>

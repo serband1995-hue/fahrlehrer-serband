@@ -7,30 +7,57 @@ import { createStage } from "./stage.js";
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const { gsap, ScrollTrigger } = window;
-gsap.registerPlugin(ScrollTrigger);
 
-/* ---------- Farbtypen (angelehnt an Thomas Erikson) ---------- */
-const FRAGEN = [
-  { q: "Du sitzt zum ersten Mal am Steuer. Was geht dir durch den Kopf?",
-    a: { r: "Los geht's. Wann darf ich schneller?", y: "Wie cool ist das denn!", g: "Hoffentlich mache ich nichts falsch.", b: "Erst mal: Wofür ist welcher Hebel?" } },
-  { q: "Du hast einen Fehler gemacht. Was brauchst du jetzt?",
-    a: { r: "Kurz sagen, was falsch war. Weiter.", y: "Ein aufmunterndes Wort.", g: "Einen Moment Ruhe.", b: "Eine genaue Erklärung, warum." } },
-  { q: "Wie lernst du am liebsten?",
-    a: { r: "Machen, machen, machen.", y: "Mit Spaß und Abwechslung.", g: "In meinem Tempo, Schritt für Schritt.", b: "Mit System und Hintergrundwissen." } },
-  { q: "Wann war eine Fahrstunde für dich richtig gut?",
-    a: { r: "Wenn ich etwas Neues geschafft habe.", y: "Wenn wir zwischendurch gelacht haben.", g: "Wenn ich mich sicher gefühlt habe.", b: "Wenn ich alles verstanden habe." } }
-];
-const TYPEN = {
-  r: { name: "Rot", titel: "Die Macherin, der Macher", farbe: "var(--red)",
-       text: "Du willst vorankommen. Wir setzen klare Ziele für jede Stunde, ich rede nicht drumherum, und du bekommst Tempo, sobald es sicher ist." },
-  y: { name: "Gelb", titel: "Mit Herz und Begeisterung", farbe: "var(--yellow)",
-       text: "Du lernst mit Freude. Wir halten die Stunden abwechslungsreich, feiern jeden Fortschritt, und ich sorge dafür, dass trotzdem nichts untergeht." },
-  g: { name: "Grün", titel: "Ruhig und gründlich", farbe: "var(--green)",
-       text: "Du brauchst Sicherheit. Wir fangen dort an, wo du dich wohlfühlst, ohne Druck und ohne Überraschungen. Schritt für Schritt, bis es sitzt." },
-  b: { name: "Blau", titel: "Erst verstehen, dann fahren", farbe: "var(--blue)",
-       text: "Du willst wissen, warum. Ich erkläre dir den Grund hinter jeder Regel, und in der Fahr-Akademie kannst du alles in Ruhe nachschauen." }
-};
+/* ---------- Kleine Helfer (ohne Bibliothek) ----------
+   Früher GSAP + ScrollTrigger (zusammen ~118 KB, lange Aufgaben beim Laden).
+   Heute: Web Animations API für die kleinen Rückmeldungen und ein gemeinsamer
+   Scroll-Taktgeber, der Positionen nur misst, wenn sich die Seite ändert. */
+const EASE = "cubic-bezier(.33,1,.68,1)";
+function einblenden(els, { y = 14, dauer = 500, abstand = 50 } = {}) {
+  if (reducedMotion) return;
+  els.forEach((el, k) => {
+    if (el && el.animate) el.animate([{ opacity: 0, transform: `translateY(${y}px)` }, { opacity: 1, transform: "none" }],
+      { duration: dauer, delay: k * abstand, easing: EASE, fill: "backwards" });
+  });
+}
+// später erledigen, wenn der Browser Luft hat (nicht im ersten, wichtigen Moment)
+const spaeter = (fn) => ("requestIdleCallback" in window ? requestIdleCallback(fn, { timeout: 1200 }) : setTimeout(fn, 60));
+const skriptLaden = (src) => new Promise((ok, fehler) => {
+  const s = document.createElement("script");
+  s.src = src; s.async = true; s.onload = ok; s.onerror = fehler;
+  document.head.append(s);
+});
+// einmal ausführen, sobald das Element in die Nähe kommt
+function inDerNaehe(el, fn, abstand = "800px") {
+  if (!el) return;
+  if (!("IntersectionObserver" in window)) return fn();
+  const io = new IntersectionObserver((en) => { if (en.some((e) => e.isIntersecting)) { io.disconnect(); fn(); } }, { rootMargin: `${abstand} 0px` });
+  io.observe(el);
+}
+
+/* Scroll-Taktgeber: höchstens einmal pro Bild. Gemessen (Layout gelesen) wird nur
+   nach Größenänderungen; beim Scrollen wird nur mit scrollY gerechnet. */
+const scroller = (() => {
+  const teile = [];
+  // bereit: erst nach dem ersten gezeichneten Bild messen – sonst erzwingt das Messen das
+  // allererste Seitenlayout vorzeitig und der erste Bildschirm erscheint später
+  let raf = 0, neuMessen = true, bereit = false;
+  const takt = () => {
+    raf = 0;
+    if (neuMessen) { neuMessen = false; teile.forEach((t) => t.messen && t.messen(scrollY)); }
+    const y = scrollY, h = innerHeight;
+    teile.forEach((t) => t.zeichnen(y, h));
+  };
+  const bald = () => { if (bereit && !raf) raf = requestAnimationFrame(takt); };
+  const refresh = () => { neuMessen = true; bald(); };
+  requestAnimationFrame(() => setTimeout(() => { bereit = true; bald(); }, 0));
+  addEventListener("scroll", bald, { passive: true });
+  addEventListener("resize", refresh);
+  if ("ResizeObserver" in window) new ResizeObserver(refresh).observe(document.body);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refresh);
+  return { add(t) { teile.push(t); refresh(); }, refresh };
+})();
+const oben = (el, y) => el.getBoundingClientRect().top + y;
 
 /* ---------- Inhalte aus der Konfiguration ---------- */
 function fillContent() {
@@ -46,12 +73,30 @@ function fillContent() {
   const tel = $("#telLink");
   tel.href = "tel:" + L.telefon;
   tel.textContent = L.telefonAnzeige;
-  const social = $("#socialLinks");
-  [["Instagram", L.instagram], ["TikTok", L.tiktok]].forEach(([n, u]) => {
-    if (!u) return;
-    const a = document.createElement("a");
-    a.href = u; a.target = "_blank"; a.rel = "noopener"; a.textContent = n;
-    social.prepend(a);
+  // Social-Profile (leer in der Konfiguration = kein Knopf).
+  // Neues Fuß-Markup: #socialProfile mit a.social__link[data-net] – erst sichtbar, wenn eins gesetzt ist.
+  // Ohne dieses Markup: wie früher vorne in #socialLinks einfügen.
+  const profil = $("#socialProfile");
+  if (profil) {
+    let eins = false;
+    $$(".social__link[data-net]", profil).forEach((a) => {
+      const u = L[a.dataset.net];
+      if (u) { a.href = u; a.hidden = false; eins = true; } else a.hidden = true;
+    });
+    profil.classList.toggle("is-hidden", !eins);
+  } else if ($("#socialLinks")) {
+    [["Facebook", L.facebook], ["YouTube", L.youtube], ["TikTok", L.tiktok], ["Instagram", L.instagram]].forEach(([n, u]) => {
+      if (!u) return;
+      const a = document.createElement("a");
+      a.href = u; a.target = "_blank"; a.rel = "noopener"; a.textContent = n;
+      $("#socialLinks").prepend(a);
+    });
+  }
+  // Allgemein: <a data-link="instagram"> (oder jeder andere Schlüssel aus links) bekommt die
+  // Adresse aus der Konfiguration; ist sie leer, verschwindet das Element
+  $$("[data-link]").forEach((a) => {
+    const u = L[a.dataset.link];
+    if (u) a.href = u; else a.hidden = true;
   });
   // Fotos: groß und klein (Handy), leer = Foto ausblenden
   // (srcset/sizes stehen schon im HTML, damit nichts doppelt lädt; hier nur bei anderer Konfiguration)
@@ -85,13 +130,21 @@ function fillContent() {
       }));
     });
   }
-  try {
-    const qr = window.qrcode(0, "M");
-    qr.addData(L.bewerten);
-    qr.make();
-    $("#qrCode").innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
-    $$("#qrCode path").forEach((p) => p.setAttribute("fill", "#0b1115"));
-  } catch (e) {}
+  // QR-Code: die Bibliothek (57 KB) erst laden, wenn der Bereich in die Nähe kommt
+  const qrBox = $("#qrCode");
+  inDerNaehe(qrBox, async () => {
+    try {
+      if (!window.qrcode) await skriptLaden("vendor/qrcode.js");
+      const qr = window.qrcode(0, "M");
+      qr.addData(L.bewerten);
+      qr.make();
+      qrBox.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+      $$("path", qrBox).forEach((p) => p.setAttribute("fill", "#0b1115"));
+    } catch (e) {
+      // ohne QR-Code bleibt der Knopf „Bewertung schreiben“ – den Kasten dann ausblenden
+      const q = qrBox.closest(".qr"); if (q) q.hidden = true;
+    }
+  });
 }
 
 /* ---------- Bewertungen: Laufband ----------
@@ -222,29 +275,48 @@ function setupReviews() {
     requestAnimationFrame(schritt);
   }
 
-  box.innerHTML = '<p class="reviews__laden">Bewertungen werden geladen …</p>';
-  // Bereich entfernen; die Seite wird kürzer, also Scroll-Auslöser neu berechnen
-  const weg = () => { $$("[data-kachel=stimmen]").forEach((k) => k.remove()); if ($("#stimmen")) { $("#stimmen").remove(); ScrollTrigger.refresh(); } };
-  const laden = async () => {
+  // Bereich entfernen (nur wenn es wirklich nichts zu zeigen gibt: leer oder keine Freigabe)
+  const weg = () => { $$("[data-kachel=stimmen]").forEach((k) => k.remove()); if ($("#stimmen")) { $("#stimmen").remove(); scroller.refresh(); } };
+  // Netz weg oder Server gerade gestört: verständlich sagen und „Nochmal versuchen“ anbieten
+  const stoerung = () => {
+    box.innerHTML = '<p class="reviews__laden" role="status">Die Bewertungen konnten gerade nicht geladen werden. <button type="button" class="btn btn--small btn--ghost" data-nochmal><span>Nochmal versuchen</span></button></p>';
+    $("[data-nochmal]", box).addEventListener("click", laden, { once: true });
+    addEventListener("online", laden, { once: true });
+  };
+  // Zusammenfassung (Anzahl) – nur aus den echten, hier sichtbaren Bewertungen
+  // (Auswahl aus der Verwaltung, nicht die Gesamtzahl bei Google). Nur wenn #reviewsSummary existiert.
+  const zusammenfassen = () => {
+    const box = $("#reviewsSummary");
+    if (!box) return;
+    const n = list.length;
+    // Bewusst kein Sterne-Durchschnitt: Es ist eine Auswahl, kein Schnitt aller Bewertungen (§ 5 UWG).
+    const cnt = $("#reviewsCount");
+    if (cnt) cnt.textContent = `${n} ${n === 1 ? "Bewertung" : "Bewertungen"} aus Google, ausgewählt und Wort für Wort übernommen`;
+    box.classList.remove("is-hidden");
+  };
+  let laedt = false;
+  async function laden() {
+    if (laedt) return; // Doppeltipp auf „Nochmal versuchen“
+    laedt = true;
+    box.innerHTML = '<p class="reviews__laden" role="status">Bewertungen werden geladen …</p>';
     try {
       const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 10000);
       const r = await fetch(`${B.url}/rest/v1/rpc/website_bewertungen_liste`, {
         method: "POST", headers: { apikey: B.key, "Content-Type": "application/json" }, body: "{}", signal: ctl.signal
       });
       clearTimeout(t);
-      if (!r.ok) return weg();
+      if (r.status >= 500) return stoerung();
+      if (!r.ok) return weg(); // z. B. Funktion nicht freigegeben: lieber keine Bewertungen
       const d = await r.json();
-      list = (Array.isArray(d) ? d : []).filter((b) => b && b.name && b.text);
+      list = (Array.isArray(d) ? d : []).filter((b) => b && typeof b.name === "string" && typeof b.text === "string" && b.name && b.text);
       if (!list.length) return weg(); // alles ausgeblendet
+      zusammenfassen();
       await build();
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
-      ScrollTrigger.refresh();
-    } catch (e) { weg(); }
-  };
-  if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver((en) => { if (en[0].isIntersecting) { io.disconnect(); laden(); } }, { rootMargin: "1500px 0px" });
-    io.observe(box);
-  } else laden();
+      scroller.refresh();
+    } catch (e) { stoerung(); } finally { laedt = false; }
+  }
+  inDerNaehe(box, laden, "1500px");
   let rt = 0;
   addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(measure, 150); });
 }
@@ -260,6 +332,7 @@ function setupBooking() {
   const setMode = (mode) => {
     const t = texts[mode];
     const auto = mode === "automatik";
+    if ($("#bookBtn").dataset.cal === mode) return; // gleicher Knopf zweimal: nichts tun
     sw.classList.toggle("is-auto", auto);
     $$(".switch__opt", sw).forEach((b) => {
       const on = b.dataset.mode === mode;
@@ -269,7 +342,9 @@ function setupBooking() {
     $("#gearSchalter").toggleAttribute("hidden", auto);
     $("#gearAutomatik").toggleAttribute("hidden", !auto);
     $("#bookBtn").dataset.cal = mode;
-    gsap.fromTo([$("#bookTitle"), $("#bookText")], { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: "power2.out", onStart: () => { $("#bookTitle").textContent = t.title; $("#bookText").textContent = t.text; } });
+    $("#bookTitle").textContent = t.title;
+    $("#bookText").textContent = t.text;
+    einblenden([$("#bookTitle"), $("#bookText")], { y: 12, abstand: 60 });
   };
   $$(".switch__opt", sw).forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
 }
@@ -294,7 +369,8 @@ document.addEventListener("visibilitychange", () => stage.pause(document.hidden)
 
 /* ---------- Die Seite ----------
    Ruhig: normales Scrollen (kein Nachgleiten), Texte stehen still und sind sofort
-   lesbar. Bewegung gibt es nur im Hintergrund-Video und bei kleinen Rückmeldungen. */
+   lesbar. Bewegung gibt es nur im Hintergrund-Video und bei kleinen Rückmeldungen.
+   Sofort: was man oben sieht und anfassen kann. Der Rest kommt, wenn der Browser Luft hat. */
 function start() {
   $$('a[href^="#"]').forEach((a) => a.addEventListener("click", (e) => {
     const id = a.getAttribute("href") || "";
@@ -309,34 +385,40 @@ function start() {
   }));
 
   setupChapters();
-  setupRoad();
-  setupTour();
-  setupQuiz();
-  setupVow();
-  setupReviews();
   setupSheets();
   setupBooking();
-  ScrollTrigger.refresh();
+  setupVow();
+  spaeter(() => { setupRoad(); setupTour(); setupQuiz(); setupReviews(); });
 }
 
-/* Kapitel: Bühne, Kopfzeile, Fortschritt */
+/* Kapitel: Bühne, Kopfzeile, Fortschritt.
+   Aktiv ist das Kapitel, das die Linie bei 55 % der Bildschirmhöhe kreuzt. */
 function setupChapters() {
   const num = $("#topNum"), name = $("#topName"), bar = $("#topBar");
   const links = $$("#menuList a");
-  chapters.forEach((c, i) => {
-    ScrollTrigger.create({
-      trigger: c, start: "top 55%", end: "bottom 55%",
-      onToggle: (self) => {
-        if (!self.isActive) return;
+  let bereiche = [], ende = 1, aktiv = -1, fortschritt = -1;
+  scroller.add({
+    messen(y) {
+      bereiche = chapters.map((c) => { const r = c.getBoundingClientRect(); return [r.top + y, r.bottom + y]; });
+      ende = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    },
+    zeichnen(y, h) {
+      const linie = y + h * 0.55;
+      const i = bereiche.findIndex(([o, u]) => o <= linie && linie < u);
+      if (i >= 0 && i !== aktiv) {
+        const erstes = aktiv < 0;
+        aktiv = i;
+        const c = chapters[i];
         stage.show(c.id);
         num.textContent = c.dataset.kapitel;
         name.textContent = c.dataset.titel;
         links.forEach((l, k) => l.classList.toggle("is-current", k === i));
-        gsap.fromTo([num, name], { y: 8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: "power2.out" });
+        if (!erstes) einblenden([num, name], { y: 8 });
       }
-    });
+      const p = Math.min(1, Math.max(0, y / ende));
+      if (Math.abs(p - fortschritt) > 0.0005) { fortschritt = p; bar.style.transform = `scaleX(${p.toFixed(4)})`; }
+    }
   });
-  ScrollTrigger.create({ start: 0, end: "max", onUpdate: (self) => (bar.style.transform = `scaleX(${self.progress.toFixed(4)})`) });
 }
 
 /* App-Tour (Kapitel IV): der Schritt in der Bildschirmmitte bestimmt das Bild im Handy */
@@ -356,90 +438,116 @@ function setupTour() {
     // nächstes Bild schon laden, damit der Wechsel ohne Lücke klappt
     [shots[i], shots[i + 1]].forEach((s) => { if (s) s.loading = "eager"; });
   };
-  // Aktiver Schritt = der letzte, dessen Oberkante die Bildschirmmitte überschritten hat.
-  // Aus der Position berechnet statt aus Ein-/Austritt je Schritt – bei schnellem
-  // Scrollen oder Sprüngen feuern diese sonst in beliebiger Reihenfolge.
-  const aktuell = () => {
-    const linie = innerHeight * 0.55;
-    let i = 0;
-    steps.forEach((s, k) => { if (s.getBoundingClientRect().top < linie) i = k; });
-    set(i);
-  };
+  // Aktiver Schritt = der letzte, dessen Oberkante die Linie bei 55 % überschritten hat.
+  // Aus der Position berechnet – stimmt auch bei schnellem Scrollen und nach Sprüngen.
+  let tops = [];
   set(0);
-  ScrollTrigger.create({ trigger: tour, start: "top bottom", end: "bottom top", onUpdate: aktuell, onRefresh: aktuell });
+  scroller.add({
+    messen(y) { tops = steps.map((s) => oben(s, y)); },
+    zeichnen(y, h) {
+      const linie = y + h * 0.55;
+      let i = 0;
+      tops.forEach((t, k) => { if (t < linie) i = k; });
+      set(i);
+    }
+  });
 }
 
-/* Farbtypen-Quiz */
+/* Quiz „Wie möchtest du Rückmeldung bekommen?“ – Fragen, Antworten und Ergebnisse
+   stehen in config.js → quiz. Vier Richtungen, je Frage eine Antwort pro Richtung. */
 function setupQuiz() {
+  const Q = CONFIG.quiz;
   const body = $("#quizBody"), step = $("#quizStep");
+  if (!body || !step) return;
+  if (!Q || !Q.fragen || !Q.fragen.length || !Q.ergebnisse) { const q = $("#quiz"); if (q) q.hidden = true; return; }
+  const T = Object.assign({ frage: "Frage {n} von {gesamt}", ergebnis: "Dein Ergebnis", vorsatz: "", schluss: "", nochmal: "Nochmal machen" }, Q.texte);
+  const richtungen = Object.keys(Q.ergebnisse);
   let i = 0, last = null, lockUntil = 0;
-  const score = { r: 0, y: 0, g: 0, b: 0 };
+  const score = {};
+  const nullen = () => richtungen.forEach((k) => (score[k] = 0));
+  nullen();
   // gleichmäßig mischen (Fisher-Yates) – sort(Math.random) bevorzugt bestimmte Plätze
   const shuffle = (a) => { for (let j = a.length - 1; j > 0; j--) { const r = Math.floor(Math.random() * (j + 1)); [a[j], a[r]] = [a[r], a[j]]; } return a; };
-  const render = () => {
+  const render = (animieren = true) => {
     lockUntil = performance.now() + 350; // ein Doppeltipp überspringt keine Frage
-    const f = FRAGEN[i];
-    step.textContent = `Frage ${i + 1} von ${FRAGEN.length}`;
+    const f = Q.fragen[i];
+    step.textContent = T.frage.replace("{n}", i + 1).replace("{gesamt}", Q.fragen.length);
     body.innerHTML = '<p class="quiz__q"></p><div class="quiz__opts"></div>';
     $(".quiz__q", body).textContent = f.q;
-    // Reihenfolge der Antworten mischen, damit keine Farbe immer oben steht
-    const keys = shuffle(Object.keys(f.a));
-    keys.forEach((k) => {
+    // Reihenfolge der Antworten mischen, damit keine Richtung immer oben steht
+    shuffle(Object.keys(f.a).filter((k) => k in score)).forEach((k) => {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "quiz__opt";
-      b.textContent = f.a[k];
+      b.dataset.key = k;
+      b.append(Object.assign(document.createElement("span"), { textContent: f.a[k] }));
       b.addEventListener("click", () => {
         if (performance.now() < lockUntil) return;
         lockUntil = Infinity;
         score[k]++; last = k; i++;
-        i < FRAGEN.length ? render() : result();
+        i < Q.fragen.length ? render() : result();
       });
       $(".quiz__opts", body).append(b);
     });
-    gsap.from($$(".quiz__q, .quiz__opt", body), { y: 14, opacity: 0, duration: 0.5, stagger: 0.05, ease: "power2.out" });
+    if (animieren) einblenden($$(".quiz__q, .quiz__opt", body), { y: 8, dauer: 350, abstand: 40 });
   };
   const result = () => {
-    // Gleichstand: die zuletzt gewählte der gleichauf liegenden Farben (nicht immer Rot)
+    // Gleichstand: die zuletzt gewählte der gleichauf liegenden Richtungen
     const max = Math.max(...Object.values(score));
     const tied = Object.keys(score).filter((k) => score[k] === max);
     const top = tied.length === 1 ? tied[0] : tied.includes(last) ? last : tied[Math.floor(Math.random() * tied.length)];
-    const t = TYPEN[top];
-    step.textContent = "Dein Ergebnis";
-    body.innerHTML = `<div class="quiz__result" style="--col:${t.farbe}"><div class="quiz__orb"></div><div><h4><small></small><span></span></h4><p></p><p class="quiz__so">So fahren wir zusammen. Den Rest besprechen wir in der ersten Stunde.</p><button class="quiz__again" type="button">Nochmal machen</button></div></div>`;
-    $("h4 small", body).textContent = "Du bist eher " + t.name;
-    $("h4 span", body).textContent = t.titel;
+    const t = Q.ergebnisse[top];
+    step.textContent = T.ergebnis;
+    // Symbol je Richtung (SVG aus config.js); ohne Symbol die alte Farbkugel
+    const symbol = t.symbol
+      ? `<div class="quiz__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${t.symbol}</svg></div>`
+      : '<div class="quiz__orb"></div>';
+    body.innerHTML = `<div class="quiz__result quiz__result--rueckmeldung">${symbol}<div><h4><small></small><span></span></h4><p></p><p class="quiz__so"></p><button class="quiz__again" type="button"></button></div></div>`;
+    const box = $(".quiz__result", body);
+    box.style.setProperty("--col", t.farbe || "var(--gold)");
+    box.dataset.richtung = top;
+    // Überschrift: kleine Zeile = Vorsatz („Dir hilft am meisten“), groß = Name der Richtung
+    const klein = $("h4 small", body);
+    if (T.vorsatz) klein.textContent = T.vorsatz; else klein.remove();
+    $("h4 span", body).textContent = t.name;
     $(".quiz__result p", body).textContent = t.text;
-    $(".quiz__again", body).addEventListener("click", () => { i = 0; last = null; Object.keys(score).forEach((k) => (score[k] = 0)); render(); });
-    gsap.from(".quiz__orb", { scale: 0, duration: 1, ease: "back.out(2)" });
-    gsap.from($$(".quiz__result h4, .quiz__result p, .quiz__again", body), { y: 14, opacity: 0, duration: 0.6, stagger: 0.08 });
+    const so = $(".quiz__so", body);
+    if (T.schluss) so.textContent = T.schluss; else so.remove();
+    const again = $(".quiz__again", body);
+    again.textContent = T.nochmal;
+    again.addEventListener("click", () => { i = 0; last = null; nullen(); render(); });
+    // kurzes Einblenden (unter 0,4 s), bei „Bewegung reduzieren“ keins
+    einblenden($$(".quiz__icon, .quiz__orb, .quiz__result h4, .quiz__result p, .quiz__again", body), { y: 8, dauer: 350, abstand: 50 });
   };
-  render();
+  render(false);
 }
 
-/* Dein Weg: die goldene Linie wächst mit dem Scrollen bis zur Bildschirmmitte;
+/* Dein Weg: die goldene Linie wächst mit dem Scrollen bis zur Linie bei 60 %;
    jede Nummer, die sie erreicht, wird größer und golden. Rein aus der Position
    berechnet – stimmt auch nach Sprüngen und in beide Richtungen. */
 function setupRoad() {
   const road = $("#road");
   if (!road) return;
   const steps = $$(".road__step", road);
-  let raf = 0;
-  const update = () => {
-    raf = 0;
-    const linie = innerHeight * 0.6;
-    const r = road.getBoundingClientRect();
-    const prog = Math.min(1, Math.max(0, (linie - r.top - 10) / Math.max(1, r.height - 20)));
-    road.style.setProperty("--prog", prog.toFixed(4));
-    steps.forEach((s) => {
-      const n = $(".road__n", s).getBoundingClientRect();
-      s.classList.toggle("is-reached", n.top + n.height / 2 <= linie);
-    });
-  };
-  const bald = () => { if (!raf) raf = requestAnimationFrame(update); };
-  addEventListener("scroll", bald, { passive: true });
-  addEventListener("resize", bald);
-  update();
+  let rOben = 0, rHoehe = 1, mitten = [], prog = -1;
+  const erreicht = steps.map(() => null);
+  scroller.add({
+    messen(y) {
+      const r = road.getBoundingClientRect();
+      rOben = r.top + y; rHoehe = r.height;
+      // Mitte der Nummer ohne die Vergrößerung (transform) – also aus dem Layout
+      mitten = steps.map((s) => { const n = $(".road__n", s); return oben(s, y) + n.offsetTop + n.offsetHeight / 2; });
+    },
+    zeichnen(y, h) {
+      const linie = y + h * 0.6;
+      const p = Math.min(1, Math.max(0, (linie - rOben - 10) / Math.max(1, rHoehe - 20)));
+      if (Math.abs(p - prog) > 0.0005) { prog = p; road.style.setProperty("--prog", p.toFixed(4)); }
+      steps.forEach((s, k) => {
+        const an = mitten[k] <= linie;
+        if (erreicht[k] !== an) { erreicht[k] = an; s.classList.toggle("is-reached", an); }
+      });
+    }
+  });
 }
 
 /* Versprechen: Foto, Satz und Unterschrift stehen ruhig da */
@@ -454,11 +562,12 @@ function setupSheets() {
   let lastFocus = null, currentUrl = "";
   // Hinter dem Fenster ist nichts bedienbar (Tab-Taste bleibt im Fenster)
   const hinten = (an) => { $$(".top, main").forEach((x) => (x.inert = an)); if (!an && menuOpen()) $("main").inert = true; };
-  const open = (el) => { lastFocus = document.activeElement; el.hidden = false; el._offenSeit = performance.now(); hinten(true); lockScroll(true); setTimeout(() => $(".sheet__close", el).focus(), 50); };
+  const open = (el) => { if (!el.hidden) return; lastFocus = document.activeElement; el.hidden = false; el._offenSeit = performance.now(); hinten(true); lockScroll(true); setTimeout(() => $(".sheet__close", el).focus(), 50); };
   const close = (el) => { el.hidden = true; if (!sheetOpen()) hinten(false); lockScroll(menuOpen()); lastFocus && lastFocus.focus(); };
   // gleiche Adresse nicht neu laden – ein angefangener Buchungsvorgang bleibt erhalten
   const loadFrame = () => { consent.hidden = true; frame.hidden = false; if (frame.getAttribute("src") !== currentUrl) frame.src = currentUrl; try { sessionStorage.setItem("serband-cal-ok", "1"); } catch (e) {} };
   $$("[data-cal]").forEach((b) => b.addEventListener("click", () => {
+    if (!sheet.hidden) return; // Doppeltipp: Fenster ist schon offen
     const auto = b.dataset.cal === "automatik";
     currentUrl = auto ? CONFIG.links.kalenderAutomatik : CONFIG.links.kalenderSchalter;
     $("#sheetKind").textContent = auto ? "Automatik" : "Schaltwagen";
