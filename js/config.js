@@ -68,7 +68,7 @@ export const CONFIG = {
       frage: "Frage {n} von {gesamt}",
       ergebnis: "Dein Wunsch",
       vorsatz: "Dir hilft am meisten",
-      schluss: "Das ist ein Wunsch, kein Urteil über dich. Er darf sich jederzeit ändern. Den Rest besprechen wir in der ersten Stunde.",
+      schluss: "Das ist ein Wunsch, kein Urteil über dich. Er darf sich jederzeit ändern. Sag es mir in der ersten Stunde.",
       nochmal: "Nochmal machen"
     }
   },
