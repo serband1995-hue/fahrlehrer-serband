@@ -290,8 +290,9 @@ function setupReviews() {
     if (!box) return;
     const n = list.length;
     const schnitt = (list.reduce((s, b) => s + sterne(b), 0) / n).toFixed(1).replace(".", ",");
-    $("#reviewsAvg").textContent = schnitt;
-    $("#reviewsCount").textContent = ` · ${n} ${n === 1 ? "Bewertung" : "Bewertungen"}`;
+    const avg = $("#reviewsAvg"), cnt = $("#reviewsCount");
+    if (avg) avg.textContent = schnitt;
+    if (cnt) cnt.textContent = ` · ${n} ${n === 1 ? "Bewertung" : "Bewertungen"}`;
     box.setAttribute("role", "img");
     box.setAttribute("aria-label", `Durchschnitt ${schnitt} von 5 Sternen aus ${n} ${n === 1 ? "Bewertung" : "Bewertungen"} auf dieser Seite`);
     box.classList.remove("is-hidden");
