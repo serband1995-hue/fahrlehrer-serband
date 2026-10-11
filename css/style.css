@@ -913,3 +913,4 @@ body.lupe-offen { overflow: hidden; }
 @media (max-width: 420px) { .sheet__head h3 { font-size: 19px; } }
 .foot__ki { grid-column: 1 / -1; font-size: .78rem; color: var(--muted); }
 
+@media (max-width: 420px) { .entry__row { flex-wrap: wrap; } .entry input { flex: 1 1 100%; } .entry__row .btn { flex: 1 1 100%; } }

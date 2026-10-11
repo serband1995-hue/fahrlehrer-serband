@@ -208,7 +208,7 @@ function setupGame() {
     note.textContent = "";
     sendBtn.disabled = false;
     form.hidden = false;
-    $("label", form).textContent = `${ms} ms – ${verdict(ms)} Trag dich in die Bestenliste ein:`;
+    $("label", form).textContent = `${ms} ms – ${verdict(ms)} Trag dich in die Bestenliste ein (nur Vor- oder Spitzname; unter 16 frag vorher deine Eltern):`;
   }
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
