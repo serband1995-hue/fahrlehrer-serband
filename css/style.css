@@ -161,8 +161,8 @@ mark.todo { background: rgba(217,181,107,.18); color: var(--gold-soft); border: 
 :root {
   --night: #05080a;
   --ink: #0b1115;
-  --card: rgba(12, 18, 22, .86);
-  --card-solid: #0d151a;
+  --card: rgba(11, 22, 17, .86);    /* 11.10.2026: leicht dunkelgrün statt grau (Marke) */
+  --card-solid: #0c1812;
   --line: rgba(220, 205, 170, .16);
   --gold: #d9b56b;
   --gold-soft: #f1dca6;
@@ -176,6 +176,37 @@ mark.todo { background: rgba(217,181,107,.18); color: var(--gold-soft); border: 
   --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --serif: "Instrument Serif", Georgia, serif;
   --radius: 24px;
+
+  /* ---- Design-System (11.10.2026): Grundwerte für neue und überarbeitete Bausteine ----
+     Marke: Nacht + Dunkelgrün + Gold. Grün ist die Fläche, Gold der Akzent (nie Gold auf Gold für Text). */
+  --green-ink: #14211a;            /* gleiche Tinte wie „Jetzt dran“ im Fahrlehrer-Kompass */
+  --green-deep: #0c1812;           /* volle grüne Fläche (Kopf einer Karte, Hervorhebung) */
+  --green-card: rgba(11, 24, 18, .88); /* Karte über dem Film, leicht grün statt grau */
+  --green-line: rgba(120, 190, 150, .18);
+  --paper: #faf6ec;                /* Papier der Klassen-Skizzen = helle Brücke zu den Apps */
+  --paper-ink: #2c2a26;
+  --gold-btn: linear-gradient(135deg, #f3dfa9, #d4aa57);
+  --on-gold: #16110a;              /* Schrift auf Gold: 8,7:1 bis 14:1 */
+  /* Schriftgrößen (Handy → groß) */
+  --fs-xs: 12px;                   /* Kicker, Bildunterschrift (immer ≥ 12 px) */
+  --fs-sm: 14px;                   /* Nebentext in Karten */
+  --fs-base: clamp(16px, 1.05vw, 18px);
+  --fs-lead: clamp(20px, 1.8vw, 28px);
+  --fs-h3: clamp(21px, 2.4vw, 30px);
+  --fs-h2: clamp(44px, 7vw, 112px);
+  --fs-h1: clamp(52px, 10vw, 170px);
+  /* Abstände (4er-Raster) */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 72px;
+  /* Ecken */
+  --radius-sm: 12px; --radius-md: 18px; --radius-pill: 999px;
+  /* Schatten */
+  --shadow-card: 0 40px 100px rgba(0, 0, 0, .45);
+  --shadow-soft: 0 12px 34px rgba(0, 0, 0, .35);
+  --shadow-gold: 0 10px 34px rgba(217, 181, 107, .22);
+  /* Bewegung: kurz und ruhig; Texte bewegen sich nie */
+  --dur-fast: .2s; --dur: .4s; --dur-slow: .9s;
+  /* Tippfläche */
+  --tap: 44px;
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
