@@ -680,6 +680,7 @@ body.lupe-offen { overflow: hidden; }
 .zitat p { margin: 0; font-family: var(--serif); font-style: italic; font-size: clamp(24px, 3vw, 36px); line-height: 1.25; color: var(--cream); }
 .zitat figcaption { margin-top: 8px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
 .stimmen__dank { max-width: 58ch; margin: 18px auto 30px; color: var(--muted); }
+.stimmen__hinweis { max-width: 62ch; margin: 18px auto 0; padding: 0 var(--gutter, 16px); color: var(--muted); font-size: .85rem; line-height: 1.5; text-align: center; }
 :target, [id] { scroll-margin-top: 84px; }
 .menu { grid-template-columns: minmax(0, 1fr); }
 .menu__pages a { min-width: 0; overflow-wrap: anywhere; }
@@ -910,3 +911,4 @@ body.lupe-offen { overflow: hidden; }
 .quiz__step { white-space: nowrap; }
 .sheet__head h3 { line-height: 1.15; }
 @media (max-width: 420px) { .sheet__head h3 { font-size: 19px; } }
+.foot__ki { font-size: .78rem; color: var(--muted); }

@@ -283,18 +283,15 @@ function setupReviews() {
     $("[data-nochmal]", box).addEventListener("click", laden, { once: true });
     addEventListener("online", laden, { once: true });
   };
-  // Zusammenfassung (Durchschnitt, Anzahl) – nur aus den echten, hier sichtbaren Bewertungen
+  // Zusammenfassung (Anzahl) – nur aus den echten, hier sichtbaren Bewertungen
   // (Auswahl aus der Verwaltung, nicht die Gesamtzahl bei Google). Nur wenn #reviewsSummary existiert.
   const zusammenfassen = () => {
     const box = $("#reviewsSummary");
     if (!box) return;
     const n = list.length;
-    const schnitt = (list.reduce((s, b) => s + sterne(b), 0) / n).toFixed(1).replace(".", ",");
-    const avg = $("#reviewsAvg"), cnt = $("#reviewsCount");
-    if (avg) avg.textContent = schnitt;
-    if (cnt) cnt.textContent = ` · ${n} ${n === 1 ? "Bewertung" : "Bewertungen"}`;
-    box.setAttribute("role", "img");
-    box.setAttribute("aria-label", `Durchschnitt ${schnitt} von 5 Sternen aus ${n} ${n === 1 ? "Bewertung" : "Bewertungen"} auf dieser Seite`);
+    // Bewusst kein Sterne-Durchschnitt: Es ist eine Auswahl, kein Schnitt aller Bewertungen (§ 5 UWG).
+    const cnt = $("#reviewsCount");
+    if (cnt) cnt.textContent = `${n} ${n === 1 ? "Bewertung" : "Bewertungen"} aus Google, ausgewählt und Wort für Wort übernommen`;
     box.classList.remove("is-hidden");
   };
   let laedt = false;

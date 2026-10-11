@@ -40,34 +40,35 @@ export const CONFIG = {
   // PLATZHALTER: Texte werden noch von Serband / Agent 2 ersetzt.
   quiz: {
     fragen: [
-      { q: "Du hast in der Fahrstunde einen Fehler gemacht. Was hilft dir am meisten?",
-        a: { sofort: "Sag es mir gleich, kurz und klar.", ende: "Lass uns nach der Fahrt in Ruhe darüber reden.", ruhe: "Erst mal anhalten und durchatmen.", bild: "Zeig es mir, am besten mit einer Skizze." } },
-      { q: "Eine neue Aufgabe steht an, zum Beispiel Einparken. Wie fängst du am liebsten an?",
-        a: { sofort: "Einfach probieren, du korrigierst mich unterwegs.", ende: "Erst einmal machen, danach gehen wir es durch.", ruhe: "Langsam, mit Pausen zwischen den Versuchen.", bild: "Vorher ein Bild oder Video ansehen." } },
-      { q: "Was nimmst du nach einer Stunde gern mit?",
-        a: { sofort: "Einen Satz: Das war gut, das üben wir noch.", ende: "Eine ausführliche Rückmeldung zu allem.", ruhe: "Das Gefühl, dass ich in meinem Tempo lernen darf.", bild: "Etwas zum Nachschauen in der App." } },
-      { q: "Im Verkehr wird es hektisch. Was brauchst du dann?",
-        a: { sofort: "Klare, kurze Ansagen.", ende: "Erst fahren, später erklären.", ruhe: "Eine ruhige Stimme und etwas Zeit.", bild: "Hinterher eine Zeichnung, wie es richtig gewesen wäre." } }
+      { q: "An einer Kreuzung hast du zu spät geschaut. Wann willst du es hören?",
+        a: { sofort: "Sofort, in einem Satz.", ende: "Lass mich erst selbst sagen, was los war.", ruhe: "Wenn wir sicher stehen, in Ruhe.", bild: "Zeig mir danach, wie es richtig aussieht." } },
+      { q: "Die Stunde ist vorbei. Was hilft dir am meisten?",
+        a: { sofort: "Der eine Punkt, an dem ich als Nächstes arbeite.", ende: "Erst sage ich, wie es lief, dann du.", ruhe: "Ein ruhiger Rückblick, ohne Zeitdruck.", bild: "Ein Beispiel auf dem iPad oder in der App." } },
+      { q: "Etwas klappt zum dritten Mal nicht. Was brauchst du?",
+        a: { sofort: "Sag es direkt. Ich kann das ab.", ende: "Frag mich, woran es meiner Meinung nach liegt.", ruhe: "Eine kurze Pause. Dann versuchen wir es neu.", bild: "Mach es mir einmal vor." } },
+      { q: "Woran merkst du am besten, dass du besser wirst?",
+        a: { sofort: "Wenn du sagst: Das sitzt jetzt.", ende: "Wenn ich es selbst merke und du mir recht gibst.", ruhe: "Wenn ich ruhiger bin als beim letzten Mal.", bild: "Wenn ich vorher und nachher vergleichen kann." } }
     ],
+    // Bewusst alle in Gold: keine vier „Typ-Farben“, es ist ein Wunsch, kein Persönlichkeitstest.
     ergebnisse: {
-      sofort: { name: "Sofort und kurz", farbe: "var(--red)",
+      sofort: { name: "kurz und gleich", farbe: "var(--gold)",
         symbol: '<path d="M13 3 5 14h6l-1 7 8-11h-6l1-7z"/>',
-        text: "Du willst gleich wissen, was los war. Dann sage ich es dir kurz und klar, direkt an der Stelle, und wir fahren weiter." },
-      ende: { name: "Am Ende und ausführlich", farbe: "var(--blue)",
+        text: "Du willst wissen, was los war, ohne lange Rede. Dann bekommst du direkt nach der Stelle einen Satz und einen Punkt für das nächste Mal. Mehr nicht. Wenn es dir mal zu knapp ist, sag es einfach." },
+      ende: { name: "erst du, dann ich", farbe: "var(--gold)",
         symbol: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/>',
-        text: "Während der Fahrt bleibt es ruhig. Nach der Stunde gehen wir alles in Ruhe durch, Punkt für Punkt." },
-      ruhe: { name: "Mit Ruhepausen", farbe: "var(--green)",
+        text: "Oft merkst du selbst, was schiefging. Dann frage ich zuerst dich und ergänze danach. So lernst du, dich selbst zu korrigieren. Genau das brauchst du, wenn du irgendwann allein im Auto sitzt." },
+      ruhe: { name: "in Ruhe danach", farbe: "var(--gold)",
         symbol: '<circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/>',
-        text: "Wenn es zu viel wird, halten wir an. Erst durchatmen, dann besprechen, dann geht es weiter." },
-      bild: { name: "Mit Bildern und Skizzen", farbe: "var(--yellow)",
+        text: "Mitten in der Situation hilft dir kein Vortrag. Wir reden, wenn das Auto sicher steht, ohne Zeitdruck. Dann ist ein Fehler kein Drama, nur eine Stelle, die wir noch einmal fahren." },
+      bild: { name: "zeig es mir", farbe: "var(--gold)",
         symbol: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/><circle cx="15.5" cy="9.5" r="1.5"/>',
-        text: "Ich zeige es dir auf dem iPad oder zeichne es auf. In der Fahr-Akademie kannst du dir die Stelle danach noch einmal ansehen." }
+        text: "Dir hilft ein Beispiel mehr als jede Erklärung. Dann zeige ich dir die Stelle auf dem iPad oder in der Fahr-Akademie, und danach fahren wir sie selbst, bis sie sitzt." }
     },
     texte: {
       frage: "Frage {n} von {gesamt}",
-      ergebnis: "Dein Ergebnis",
+      ergebnis: "Dein Wunsch",
       vorsatz: "Dir hilft am meisten",
-      schluss: "Das ist ein Anfang. Wie es dir wirklich hilft, finden wir in der ersten Stunde zusammen heraus.",
+      schluss: "Das ist ein Wunsch, kein Urteil über dich. Er darf sich jederzeit ändern. Den Rest besprechen wir in der ersten Stunde.",
       nochmal: "Nochmal machen"
     }
   },
