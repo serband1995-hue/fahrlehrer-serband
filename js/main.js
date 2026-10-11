@@ -73,14 +73,25 @@ function fillContent() {
   const tel = $("#telLink");
   tel.href = "tel:" + L.telefon;
   tel.textContent = L.telefonAnzeige;
-  // Social-Profile: in der Fußzeile vorne einfügen (leer in der Konfiguration = kein Knopf)
-  const social = $("#socialLinks");
-  if (social) [["YouTube", L.youtube], ["TikTok", L.tiktok], ["Instagram", L.instagram]].forEach(([n, u]) => {
-    if (!u) return;
-    const a = document.createElement("a");
-    a.href = u; a.target = "_blank"; a.rel = "noopener"; a.textContent = n;
-    social.prepend(a);
-  });
+  // Social-Profile (leer in der Konfiguration = kein Knopf).
+  // Neues Fuß-Markup: #socialProfile mit a.social__link[data-net] – erst sichtbar, wenn eins gesetzt ist.
+  // Ohne dieses Markup: wie früher vorne in #socialLinks einfügen.
+  const profil = $("#socialProfile");
+  if (profil) {
+    let eins = false;
+    $$(".social__link[data-net]", profil).forEach((a) => {
+      const u = L[a.dataset.net];
+      if (u) { a.href = u; a.hidden = false; eins = true; } else a.hidden = true;
+    });
+    profil.classList.toggle("is-hidden", !eins);
+  } else if ($("#socialLinks")) {
+    [["Facebook", L.facebook], ["YouTube", L.youtube], ["TikTok", L.tiktok], ["Instagram", L.instagram]].forEach(([n, u]) => {
+      if (!u) return;
+      const a = document.createElement("a");
+      a.href = u; a.target = "_blank"; a.rel = "noopener"; a.textContent = n;
+      $("#socialLinks").prepend(a);
+    });
+  }
   // Allgemein: <a data-link="instagram"> (oder jeder andere Schlüssel aus links) bekommt die
   // Adresse aus der Konfiguration; ist sie leer, verschwindet das Element
   $$("[data-link]").forEach((a) => {
@@ -265,20 +276,25 @@ function setupReviews() {
   }
 
   // Bereich entfernen (nur wenn es wirklich nichts zu zeigen gibt: leer oder keine Freigabe)
-  const weg = () => { $$("[data-kachel=stimmen]").forEach((k) => k.remove()); $$("[data-bewertung-zusammenfassung]").forEach((x) => (x.hidden = true)); if ($("#stimmen")) { $("#stimmen").remove(); scroller.refresh(); } };
+  const weg = () => { $$("[data-kachel=stimmen]").forEach((k) => k.remove()); if ($("#stimmen")) { $("#stimmen").remove(); scroller.refresh(); } };
   // Netz weg oder Server gerade gestört: verständlich sagen und „Nochmal versuchen“ anbieten
   const stoerung = () => {
     box.innerHTML = '<p class="reviews__laden" role="status">Die Bewertungen konnten gerade nicht geladen werden. <button type="button" class="btn btn--small btn--ghost" data-nochmal><span>Nochmal versuchen</span></button></p>';
     $("[data-nochmal]", box).addEventListener("click", laden, { once: true });
     addEventListener("online", laden, { once: true });
   };
-  // Zusammenfassung (Anzahl, Durchschnitt) – nur aus den echten, sichtbaren Bewertungen.
-  // Wird nur gefüllt, wenn im HTML Platzhalter dafür stehen.
+  // Zusammenfassung (Durchschnitt, Anzahl) – nur aus den echten, hier sichtbaren Bewertungen
+  // (Auswahl aus der Verwaltung, nicht die Gesamtzahl bei Google). Nur wenn #reviewsSummary existiert.
   const zusammenfassen = () => {
-    const schnitt = list.reduce((s, b) => s + sterne(b), 0) / list.length;
-    $$("[data-bewertung-anzahl]").forEach((x) => (x.textContent = list.length));
-    $$("[data-bewertung-schnitt]").forEach((x) => (x.textContent = schnitt.toFixed(1).replace(".", ",")));
-    $$("[data-bewertung-zusammenfassung]").forEach((x) => (x.hidden = false));
+    const box = $("#reviewsSummary");
+    if (!box) return;
+    const n = list.length;
+    const schnitt = (list.reduce((s, b) => s + sterne(b), 0) / n).toFixed(1).replace(".", ",");
+    $("#reviewsAvg").textContent = schnitt;
+    $("#reviewsCount").textContent = ` · ${n} ${n === 1 ? "Bewertung" : "Bewertungen"} auf dieser Seite`;
+    box.setAttribute("role", "img");
+    box.setAttribute("aria-label", `Durchschnitt ${schnitt} von 5 Sternen aus ${n} ${n === 1 ? "Bewertung" : "Bewertungen"} auf dieser Seite`);
+    box.classList.remove("is-hidden");
   };
   let laedt = false;
   async function laden() {
@@ -465,7 +481,8 @@ function setupQuiz() {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "quiz__opt";
-      b.textContent = f.a[k];
+      b.dataset.key = k;
+      b.append(Object.assign(document.createElement("span"), { textContent: f.a[k] }));
       b.addEventListener("click", () => {
         if (performance.now() < lockUntil) return;
         lockUntil = Infinity;
@@ -474,7 +491,7 @@ function setupQuiz() {
       });
       $(".quiz__opts", body).append(b);
     });
-    if (animieren) einblenden($$(".quiz__q, .quiz__opt", body));
+    if (animieren) einblenden($$(".quiz__q, .quiz__opt", body), { y: 8, dauer: 350, abstand: 40 });
   };
   const result = () => {
     // Gleichstand: die zuletzt gewählte der gleichauf liegenden Richtungen
@@ -483,7 +500,11 @@ function setupQuiz() {
     const top = tied.length === 1 ? tied[0] : tied.includes(last) ? last : tied[Math.floor(Math.random() * tied.length)];
     const t = Q.ergebnisse[top];
     step.textContent = T.ergebnis;
-    body.innerHTML = '<div class="quiz__result"><div class="quiz__orb"></div><div><h4><small></small><span></span></h4><p></p><p class="quiz__so"></p><button class="quiz__again" type="button"></button></div></div>';
+    // Symbol je Richtung (SVG aus config.js); ohne Symbol die alte Farbkugel
+    const symbol = t.symbol
+      ? `<div class="quiz__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${t.symbol}</svg></div>`
+      : '<div class="quiz__orb"></div>';
+    body.innerHTML = `<div class="quiz__result quiz__result--rueckmeldung">${symbol}<div><h4><small></small><span></span></h4><p></p><p class="quiz__so"></p><button class="quiz__again" type="button"></button></div></div>`;
     const box = $(".quiz__result", body);
     box.style.setProperty("--col", t.farbe || "var(--gold)");
     box.dataset.richtung = top;
@@ -495,11 +516,8 @@ function setupQuiz() {
     const again = $(".quiz__again", body);
     again.textContent = T.nochmal;
     again.addEventListener("click", () => { i = 0; last = null; nullen(); render(); });
-    if (!reducedMotion) {
-      const orb = $(".quiz__orb", body);
-      if (orb.animate) orb.animate([{ transform: "scale(0)" }, { transform: "scale(1)" }], { duration: 1000, easing: "cubic-bezier(.34,1.56,.64,1)" });
-      einblenden($$(".quiz__result h4, .quiz__result p, .quiz__again", body), { dauer: 600, abstand: 80 });
-    }
+    // kurzes Einblenden (unter 0,4 s), bei „Bewegung reduzieren“ keins
+    einblenden($$(".quiz__icon, .quiz__orb, .quiz__result h4, .quiz__result p, .quiz__again", body), { y: 8, dauer: 350, abstand: 50 });
   };
   render(false);
 }

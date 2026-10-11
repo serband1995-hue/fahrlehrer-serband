@@ -66,7 +66,7 @@ const board = (() => {
         list.append(li);
       });
     } catch (e) {
-      list.innerHTML = '<li class="board__empty">Bestenliste gerade nicht erreichbar. <button type="button" class="btn btn--small btn--ghost" data-nochmal><span>Nochmal versuchen</span></button></li>';
+      list.innerHTML = '<li class="board__empty is-fehler">Bestenliste gerade nicht erreichbar. <button type="button" class="btn btn--small btn--ghost" data-nochmal><span>Nochmal versuchen</span></button></li>';
       $("[data-nochmal]", list).addEventListener("click", load, { once: true });
       addEventListener("online", load, { once: true });
     } finally { laedt = false; }
@@ -94,17 +94,18 @@ const board = (() => {
    Zeit und Reaktionsweg – kein Name, keine Platzierung, nichts Persönliches. */
 const teilen = (() => {
   const url = (CONFIG.teilen && CONFIG.teilen.reaktion) || location.href.split("#")[0] + "#test";
-  let btn = $("#shareBtn"), note = $("#shareMsg"), daten = null, busy = false;
-  // Fehlt der Knopf im HTML, legt das Skript ihn unter dem Eintragen-Feld an
+  let box = $("#share"), btn = $("#shareBtn"), note = $("#shareMsg"), daten = null, busy = false;
+  // Fehlt der Bereich im HTML, legt das Skript ihn unter dem Eintragen-Feld an
   if (!btn && $("#entry")) {
-    const box = document.createElement("div");
-    box.className = "share";
+    box = document.createElement("div");
+    box.className = "share"; box.id = "share"; box.hidden = true;
     box.style.marginTop = "14px"; // bis css/style.css eine Regel für .share hat
-    box.innerHTML = '<button class="btn btn--small btn--ghost" type="button" id="shareBtn" hidden><span>Ergebnis teilen</span></button><p class="entry__msg" id="shareMsg" aria-live="polite"></p>';
+    box.innerHTML = '<button class="btn btn--small btn--ghost share__btn" type="button" id="shareBtn"><span>Ergebnis teilen</span></button><p class="share__msg entry__msg" id="shareMsg" aria-live="polite"></p>';
     $("#entry").after(box);
     btn = $("#shareBtn"); note = $("#shareMsg");
   }
   if (!btn) return { zeigen() {}, verstecken() {} };
+  const huelle = box || btn;
   const sagen = (t) => { if (note) note.textContent = t; };
   btn.addEventListener("click", async () => {
     if (!daten || busy) return; // Doppeltipp öffnet das Teilen-Menü nicht zweimal
@@ -126,8 +127,8 @@ const teilen = (() => {
     } finally { busy = false; }
   });
   return {
-    zeigen(ms, weg) { daten = { ms, weg }; btn.hidden = false; sagen(""); },
-    verstecken() { daten = null; btn.hidden = true; sagen(""); }
+    zeigen(ms, weg) { daten = { ms, weg }; btn.hidden = false; huelle.hidden = false; sagen(""); },
+    verstecken() { daten = null; huelle.hidden = true; sagen(""); }
   };
 })();
 
