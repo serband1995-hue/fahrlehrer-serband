@@ -544,11 +544,12 @@ function setupSheets() {
   let lastFocus = null, currentUrl = "";
   // Hinter dem Fenster ist nichts bedienbar (Tab-Taste bleibt im Fenster)
   const hinten = (an) => { $$(".top, main").forEach((x) => (x.inert = an)); if (!an && menuOpen()) $("main").inert = true; };
-  const open = (el) => { lastFocus = document.activeElement; el.hidden = false; el._offenSeit = performance.now(); hinten(true); lockScroll(true); setTimeout(() => $(".sheet__close", el).focus(), 50); };
+  const open = (el) => { if (!el.hidden) return; lastFocus = document.activeElement; el.hidden = false; el._offenSeit = performance.now(); hinten(true); lockScroll(true); setTimeout(() => $(".sheet__close", el).focus(), 50); };
   const close = (el) => { el.hidden = true; if (!sheetOpen()) hinten(false); lockScroll(menuOpen()); lastFocus && lastFocus.focus(); };
   // gleiche Adresse nicht neu laden – ein angefangener Buchungsvorgang bleibt erhalten
   const loadFrame = () => { consent.hidden = true; frame.hidden = false; if (frame.getAttribute("src") !== currentUrl) frame.src = currentUrl; try { sessionStorage.setItem("serband-cal-ok", "1"); } catch (e) {} };
   $$("[data-cal]").forEach((b) => b.addEventListener("click", () => {
+    if (!sheet.hidden) return; // Doppeltipp: Fenster ist schon offen
     const auto = b.dataset.cal === "automatik";
     currentUrl = auto ? CONFIG.links.kalenderAutomatik : CONFIG.links.kalenderSchalter;
     $("#sheetKind").textContent = auto ? "Automatik" : "Schaltwagen";
