@@ -779,7 +779,7 @@ body.lupe-offen { overflow: hidden; }
 .lektion .folien { margin-bottom: 4px; }
 .lektion .gruppe { margin-top: 16px; }
 .pause--lektion { margin: 20px 0 0; width: 100%; }
-@media (max-width: 760px) { .pause--lektion { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .pause--lektion { grid-template-columns: minmax(0, 1fr); } }
 /* Folien-Reihen: keine Scrollleiste (wirkte am Handy wie ein brauner Balken); die angeschnittene nächste Folie zeigt, dass man wischen kann */
 .folien, .vorschau { scrollbar-width: none; }
 .folien::-webkit-scrollbar, .vorschau::-webkit-scrollbar { display: none; }
@@ -912,3 +912,4 @@ body.lupe-offen { overflow: hidden; }
 .sheet__head h3 { line-height: 1.15; }
 @media (max-width: 420px) { .sheet__head h3 { font-size: 19px; } }
 .foot__ki { grid-column: 1 / -1; font-size: .78rem; color: var(--muted); }
+
