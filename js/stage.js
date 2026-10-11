@@ -14,7 +14,10 @@ export function createStage(ids) {
   const sparen = ruhig || !!(navigator.connection && navigator.connection.saveData);
   const scenes = {};
 
-  ids.forEach((id) => {
+  // Szenen erst anlegen, wenn sie gebraucht werden (beim Start nur die erste) –
+  // spart beim Laden Arbeit für neun Bilder und Videos, die noch niemand sieht
+  function anlegen(id) {
+    if (scenes[id] || !ids.includes(id)) return scenes[id];
     const cfg = CONFIG.szenen[id] || CONFIG.szenen.standard;
     const el = document.createElement("div");
     el.className = "scene";
@@ -42,17 +45,18 @@ export function createStage(ids) {
     }
     root.append(el);
     scenes[id] = { el, img, video, loaded: false, ready: false };
-  });
+    return scenes[id];
+  }
 
   function loadStill(id) {
-    const s = scenes[id];
+    const s = anlegen(id);
     if (!s || s.still) return;
     s.still = true;
     s.img.src = s.img.dataset.src;
   }
 
   function load(id) {
-    const s = scenes[id];
+    const s = anlegen(id);
     if (!s || s.loaded) return;
     s.loaded = true;
     loadStill(id);
@@ -78,7 +82,10 @@ export function createStage(ids) {
     const prev = scenes[active];
     active = id;
     const i = ids.indexOf(id);
+    const neu = !scenes[id];
     loadStill(id);
+    // frisch angelegte Szene: Ausgangszustand (unsichtbar) festhalten, damit sie weich einblendet
+    if (neu && !first && scenes[id]) getComputedStyle(scenes[id].el).opacity;
     clearTimeout(loadTimer);
     // altes Video erst nach dem Überblenden anhalten
     if (prev && prev.video) setTimeout(() => { if (scenes[active] !== prev) prev.video.pause(); }, 1200);

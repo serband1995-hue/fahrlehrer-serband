@@ -1,14 +1,11 @@
 /* ============================================================
-   INHALTE DER SEITE – hier änderst du Texte, Links und Bilder.
+   INHALTE DER SEITE – hier änderst du Links, Bilder, Videos,
+   Klassen, Sprachen und die Texte des Rückmeldungs-Quiz.
+   Die übrigen Texte stehen direkt in den HTML-Dateien.
    Alles, was mit  TODO  markiert ist, fehlt noch von Serband.
    ============================================================ */
 
 export const CONFIG = {
-  name: "Serband",
-  rolle: "Fahrlehrer",
-  schule: "Fahrschule Boost",
-  ort: "Offenbach am Main",
-
   links: {
     // Die beiden Buchungskalender
     kalenderSchalter: "https://service.fahrschule-boost.de/widget/bookings/fahrlehrer-serband",
@@ -19,15 +16,60 @@ export const CONFIG = {
     bewerten: "https://search.google.com/local/writereview?placeid=ChIJ0UPFLoIPvUcREq2efNEsxEg",
     // Alle Bewertungen lesen (Profil in Google Maps)
     bewertungen: "https://maps.app.goo.gl/aHvbCk1vxRKHfqxP9",
-    schule: "https://fahrschule-boost.de/",
     preise: "https://fahrschule-boost.de/",
     telefon: "+496936605670",
     telefonAnzeige: "069 · 36 60 56 70",
     whatsapp: "https://wa.me/496936605670",
+    // Social-Profile: leer ("") = Knopf wird nicht gezeigt.
+    // Wer eins ändert, ändert es auch in index.html im <head> (JSON-LD → "sameAs").
     instagram: "https://www.instagram.com/fahrlehrerserband/",
-    tiktok: "",    // noch keins – leer = Knopf wird nicht gezeigt
-    impressum: "impressum.html",     // TODO: markierte Stellen in impressum.html ausfüllen
-    datenschutz: "datenschutz.html"  // TODO: markierte Stellen in datenschutz.html ausfüllen
+    tiktok: "",    // TODO: noch keins
+    youtube: "",   // TODO: noch keins
+    facebook: ""   // TODO: noch keins
+  },
+
+  // Adresse, unter der ein geteiltes Ergebnis des Reaktionstests landet
+  teilen: {
+    reaktion: "https://www.fahrlehrer-serband.de/theorie.html#test"
+  },
+
+  // Quiz in Kapitel II: „Wie möchtest du Rückmeldung bekommen?“
+  // Vier Richtungen (Schlüssel): sofort, ende, ruhe, bild.
+  // Jede Frage hat zu jeder Richtung eine Antwort; die Reihenfolge wird gemischt.
+  // Ergebnis: name (groß), text, farbe (CSS-Variable), symbol = Innenteil eines SVG (24×24, nur Linien).
+  // PLATZHALTER: Texte werden noch von Serband / Agent 2 ersetzt.
+  quiz: {
+    fragen: [
+      { q: "Du hast in der Fahrstunde einen Fehler gemacht. Was hilft dir am meisten?",
+        a: { sofort: "Sag es mir gleich, kurz und klar.", ende: "Lass uns nach der Fahrt in Ruhe darüber reden.", ruhe: "Erst mal anhalten und durchatmen.", bild: "Zeig es mir, am besten mit einer Skizze." } },
+      { q: "Eine neue Aufgabe steht an, zum Beispiel Einparken. Wie fängst du am liebsten an?",
+        a: { sofort: "Einfach probieren, du korrigierst mich unterwegs.", ende: "Erst einmal machen, danach gehen wir es durch.", ruhe: "Langsam, mit Pausen zwischen den Versuchen.", bild: "Vorher ein Bild oder Video ansehen." } },
+      { q: "Was nimmst du nach einer Stunde gern mit?",
+        a: { sofort: "Einen Satz: Das war gut, das üben wir noch.", ende: "Eine ausführliche Rückmeldung zu allem.", ruhe: "Das Gefühl, dass ich in meinem Tempo lernen darf.", bild: "Etwas zum Nachschauen in der App." } },
+      { q: "Im Verkehr wird es hektisch. Was brauchst du dann?",
+        a: { sofort: "Klare, kurze Ansagen.", ende: "Erst fahren, später erklären.", ruhe: "Eine ruhige Stimme und etwas Zeit.", bild: "Hinterher eine Zeichnung, wie es richtig gewesen wäre." } }
+    ],
+    ergebnisse: {
+      sofort: { name: "Sofort und kurz", farbe: "var(--red)",
+        symbol: '<path d="M13 3 5 14h6l-1 7 8-11h-6l1-7z"/>',
+        text: "Du willst gleich wissen, was los war. Dann sage ich es dir kurz und klar, direkt an der Stelle, und wir fahren weiter." },
+      ende: { name: "Am Ende und ausführlich", farbe: "var(--blue)",
+        symbol: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/>',
+        text: "Während der Fahrt bleibt es ruhig. Nach der Stunde gehen wir alles in Ruhe durch, Punkt für Punkt." },
+      ruhe: { name: "Mit Ruhepausen", farbe: "var(--green)",
+        symbol: '<circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/>',
+        text: "Wenn es zu viel wird, halten wir an. Erst durchatmen, dann besprechen, dann geht es weiter." },
+      bild: { name: "Mit Bildern und Skizzen", farbe: "var(--yellow)",
+        symbol: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/><circle cx="15.5" cy="9.5" r="1.5"/>',
+        text: "Ich zeige es dir auf dem iPad oder zeichne es auf. In der Fahr-Akademie kannst du dir die Stelle danach noch einmal ansehen." }
+    },
+    texte: {
+      frage: "Frage {n} von {gesamt}",
+      ergebnis: "Dein Ergebnis",
+      vorsatz: "Dir hilft am meisten",
+      schluss: "Das ist ein Anfang. Wie es dir wirklich hilft, finden wir in der ersten Stunde zusammen heraus.",
+      nochmal: "Nochmal machen"
+    }
   },
 
   // Hintergrund pro Kapitel: ein Video quer (Computer, Tablet quer) und eins hoch (Handy).
@@ -75,23 +117,23 @@ export const CONFIG = {
     key: "sb_publishable_XiBZufRB7XMpxhJwfWxKFA_PmtFC6ly"
   },
 
-  // Fotos: jeweils groß (src) und klein fürs Handy. Leer ("") = Foto wird ausgeblendet.
-  //   portrait:   „Mein Versprechen“ (Kapitel III)
-  //   unterricht: Theorieunterricht (Kapitel I) – alle erkennbaren Personen haben eingewilligt
+  // Fotos: groß (src) und klein fürs Handy. Leer ("") = Foto wird ausgeblendet.
+  //   portrait: „Mein Versprechen“ (Kapitel III, img[data-foto="portrait"])
+  // (Das Unterrichtsfoto auf theorie.html steht fest im HTML.)
   fotos: {
-    portrait: { src: "img/serband-portrait-1000.jpg", klein: "img/serband-portrait-640.jpg", breite: 1000, kleinBreite: 640 },
-    unterricht: { src: "img/serband-unterricht-1600.jpg", klein: "img/serband-unterricht-900.jpg", breite: 1600, kleinBreite: 900 }
+    portrait: { src: "img/serband-portrait-1000.jpg", klein: "img/serband-portrait-640.jpg", breite: 1000, kleinBreite: 640 }
   },
 
-  // TODO: Videos aus der Ausbildung (mp4 in serband/img oder leer lassen).
-  // Leer = es läuft eine Animation an dieser Stelle.
+  // TODO (Entscheidung Serband): Videos aus der Ausbildung (mp4 in img/) – oder Feld streichen.
+  // Wird derzeit von keinem Skript gelesen, also auf der Seite NICHT angezeigt.
   videos: {
     theorie: "",
     fahrstunde: "",
     pruefung: ""
   },
 
-  // TODO: echte Zahlen. Einträge mit wert: null werden nicht angezeigt.
+  // TODO (Entscheidung Serband): echte Zahlen – oder Feld streichen. Keine erfundenen Werte.
+  // Wird derzeit von keinem Skript gelesen, also auf der Seite NICHT angezeigt.
   zahlen: [
     { wert: null, suffix: "+", label: "bestandene Prüfungen" },
     { wert: null, suffix: "", label: "Jahre am Steuer" },

@@ -17,7 +17,7 @@
 .intro__inner { position: relative; z-index: 2; text-align: center; display: grid; justify-items: center; gap: 6px; padding: 24px; }
 .intro__mark { width: 110px; height: 110px; margin-bottom: 18px; filter: drop-shadow(0 0 24px rgba(217,181,107,.25)); }
 /* Logo (Kompass) */
-.mk { overflow: visible; }
+svg.mk { overflow: visible; }
 .mk-ring { fill: none; stroke: var(--gold); stroke-width: 2.4; }
 .mk-ring--in { stroke-width: 1; opacity: .45; }
 .mk-pts { fill: var(--gold-soft); }

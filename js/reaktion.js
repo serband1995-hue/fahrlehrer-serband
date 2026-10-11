@@ -15,12 +15,18 @@ const store = {
 /* ---------- Bestenliste (Supabase, nur zwei öffentliche Funktionen) ---------- */
 const board = (() => {
   const B = CONFIG.bestenliste;
+  // Aufruf mit Zeitlimit (10 s). Netzfehler → Fehler "netz", damit die Seite es verständlich sagen kann
   const call = async (fn, body) => {
-    const r = await fetch(`${B.url}/rest/v1/rpc/${fn}`, {
-      method: "POST",
-      headers: { apikey: B.key, "Content-Type": "application/json" },
-      body: JSON.stringify(body || {})
-    });
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 10000);
+    let r;
+    try {
+      r = await fetch(`${B.url}/rest/v1/rpc/${fn}`, {
+        method: "POST",
+        headers: { apikey: B.key, "Content-Type": "application/json" },
+        body: JSON.stringify(body || {}),
+        signal: ctl.signal
+      });
+    } catch (e) { throw new Error("netz"); } finally { clearTimeout(t); }
     const data = await r.json().catch(() => null);
     if (!r.ok) throw new Error((data && data.message) || "fehler");
     return data;
@@ -29,6 +35,8 @@ const board = (() => {
   // „Rekord“ = Platz 1 der Bestenliste; leuchtet kurz auf, wenn er gebrochen wird
   const rekordEl = $("#gameBest");
   let rekordMs = 0;
+  // vor dem Laden keine Zahl zeigen, die nicht stimmt (im HTML steht ggf. noch ein Beispielwert)
+  if (rekordEl) rekordEl.textContent = "–";
   function rekord(ms) {
     if (!rekordEl || !(ms > 0)) return;
     rekordEl.textContent = ms + " ms";
@@ -36,12 +44,14 @@ const board = (() => {
     rekordMs = ms;
   }
   let me = store.get("serband-name") || "";
+  let laedt = false;
   async function load() {
-    if (!list) return;
+    if (!list || laedt) return; // Doppeltipp auf „Nochmal versuchen“
+    laedt = true;
     try {
       const rows = await call("website_reaktion_top");
       list.innerHTML = "";
-      if (!rows.length) {
+      if (!Array.isArray(rows) || !rows.length) {
         list.innerHTML = '<li class="board__empty">Noch leer – sei die oder der Erste!</li>';
         return;
       }
@@ -56,15 +66,18 @@ const board = (() => {
         list.append(li);
       });
     } catch (e) {
-      list.innerHTML = '<li class="board__empty">Bestenliste gerade nicht erreichbar.</li>';
-    }
+      list.innerHTML = '<li class="board__empty is-fehler">Bestenliste gerade nicht erreichbar. <button type="button" class="btn btn--small btn--ghost" data-nochmal><span>Nochmal versuchen</span></button></li>';
+      $("[data-nochmal]", list).addEventListener("click", load, { once: true });
+      addEventListener("online", load, { once: true });
+    } finally { laedt = false; }
   }
   const texte = {
     name_laenge: "Bitte 2 bis 15 Zeichen.",
     name_zeichen: "Bitte nur Buchstaben, Zahlen, Leerzeichen, Punkt oder Bindestrich.",
     name_unzulaessig: "Dieser Name geht leider nicht.",
     zeit_ungueltig: "Diese Zeit können wir nicht eintragen.",
-    zu_viele_versuche: "Viele Versuche – probier es später noch einmal."
+    zu_viele_versuche: "Viele Versuche – probier es später noch einmal.",
+    netz: "Keine Verbindung. Prüf dein Internet und tipp nochmal auf „Eintragen“."
   };
   async function submit(name, ms) {
     const platz = await call("website_reaktion_eintragen", { p_name: name, p_ms: ms });
@@ -74,6 +87,49 @@ const board = (() => {
     return platz;
   }
   return { load, submit, texte, get me() { return me; } };
+})();
+
+/* ---------- Ergebnis teilen ----------
+   Web Share (Handy: Teilen-Menü) mit Rückfall „Link kopieren“. Geteilt werden nur
+   Zeit und Reaktionsweg – kein Name, keine Platzierung, nichts Persönliches. */
+const teilen = (() => {
+  const url = (CONFIG.teilen && CONFIG.teilen.reaktion) || location.href.split("#")[0] + "#test";
+  let box = $("#share"), btn = $("#shareBtn"), note = $("#shareMsg"), daten = null, busy = false;
+  // Fehlt der Bereich im HTML, legt das Skript ihn unter dem Eintragen-Feld an
+  if (!btn && $("#entry")) {
+    box = document.createElement("div");
+    box.className = "share"; box.id = "share"; box.hidden = true;
+    box.style.marginTop = "14px"; // bis css/style.css eine Regel für .share hat
+    box.innerHTML = '<button class="btn btn--small btn--ghost share__btn" type="button" id="shareBtn"><span>Ergebnis teilen</span></button><p class="share__msg entry__msg" id="shareMsg" aria-live="polite"></p>';
+    $("#entry").after(box);
+    btn = $("#shareBtn"); note = $("#shareMsg");
+  }
+  if (!btn) return { zeigen() {}, verstecken() {} };
+  const huelle = box || btn;
+  const sagen = (t) => { if (note) note.textContent = t; };
+  btn.addEventListener("click", async () => {
+    if (!daten || busy) return; // Doppeltipp öffnet das Teilen-Menü nicht zweimal
+    busy = true;
+    const text = `Meine Reaktionszeit: ${daten.ms} ms. Bei 50 km/h fahre ich in der Zeit ${daten.weg} blind weiter. Schaffst du es schneller?`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Reaktionstest", text, url });
+        sagen("");
+      } else if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        sagen("Text und Link kopiert – jetzt einfügen und verschicken.");
+      } else {
+        sagen(`Zum Kopieren: ${text} ${url}`);
+      }
+    } catch (e) {
+      // abgebrochen: still bleiben; sonst den Text zum Kopieren zeigen
+      if (!e || e.name !== "AbortError") sagen(`Zum Kopieren: ${text} ${url}`);
+    } finally { busy = false; }
+  });
+  return {
+    zeigen(ms, weg) { daten = { ms, weg }; btn.hidden = false; huelle.hidden = false; sagen(""); },
+    verstecken() { daten = null; huelle.hidden = true; sagen(""); }
+  };
 })();
 
 /* ---------- Reaktionstest ---------- */
@@ -90,6 +146,7 @@ function setupGame() {
   const go = () => {
     state = "wait";
     hideEntry();
+    teilen.verstecken();
     reset();
     msg.textContent = "Warte auf Grün …";
     lamps[0].classList.add("red");
@@ -137,6 +194,7 @@ function setupGame() {
     dEl.textContent = dist.toFixed(1).replace(".", ",") + " m";
     if (ms > MAX_MS) { msg.textContent = "Abgelenkt? Nochmal!"; return; }
     msg.textContent = verdict(ms) + " Nochmal?";
+    teilen.zeigen(ms, dEl.textContent);
     showEntry(ms);
   };
   // Eintragen in die Bestenliste
