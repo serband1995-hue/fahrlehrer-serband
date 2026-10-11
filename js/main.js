@@ -291,7 +291,7 @@ function setupReviews() {
     const n = list.length;
     const schnitt = (list.reduce((s, b) => s + sterne(b), 0) / n).toFixed(1).replace(".", ",");
     $("#reviewsAvg").textContent = schnitt;
-    $("#reviewsCount").textContent = ` · ${n} ${n === 1 ? "Bewertung" : "Bewertungen"} auf dieser Seite`;
+    $("#reviewsCount").textContent = ` · ${n} ${n === 1 ? "Bewertung" : "Bewertungen"}`;
     box.setAttribute("role", "img");
     box.setAttribute("aria-label", `Durchschnitt ${schnitt} von 5 Sternen aus ${n} ${n === 1 ? "Bewertung" : "Bewertungen"} auf dieser Seite`);
     box.classList.remove("is-hidden");
@@ -508,8 +508,10 @@ function setupQuiz() {
     const box = $(".quiz__result", body);
     box.style.setProperty("--col", t.farbe || "var(--gold)");
     box.dataset.richtung = top;
-    $("h4 small", body).textContent = T.vorsatz ? `${T.vorsatz} ${t.name}` : t.name;
-    $("h4 span", body).textContent = t.titel;
+    // Überschrift: kleine Zeile = Vorsatz („Dir hilft am meisten“), groß = Name der Richtung
+    const klein = $("h4 small", body);
+    if (T.vorsatz) klein.textContent = T.vorsatz; else klein.remove();
+    $("h4 span", body).textContent = t.name;
     $(".quiz__result p", body).textContent = t.text;
     const so = $(".quiz__so", body);
     if (T.schluss) so.textContent = T.schluss; else so.remove();
