@@ -792,3 +792,36 @@ body.lupe-offen { overflow: hidden; }
   font-size: .9rem; font-weight: 600; text-decoration: none;
 }
 .mini-knopf:hover, .mini-knopf:focus-visible { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.4); }
+
+/* ---------- Erster Bildschirm (11.10.2026) ----------
+   In 5 Sekunden: wer (Gesicht + Name + Klassen), wo (Orte + Boost), was tun (Termin / Reaktionstest).
+   Der Einleitungstext steht jetzt unter den Knöpfen, damit beide Aktionen am Handy ohne Scrollen sichtbar sind. */
+.wer { display: inline-flex; align-items: center; gap: var(--sp-3); min-height: var(--tap); margin: 0 0 var(--sp-5); padding: 6px 18px 6px 6px; border-radius: var(--radius-pill); border: 1px solid var(--line); background: var(--green-card); text-decoration: none; text-align: left; transition: border-color var(--dur-fast); }
+.wer:hover { border-color: rgba(217,181,107,.6); }
+.wer__bild { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex: none; box-shadow: 0 0 0 1.5px var(--gold); }
+.wer__text { display: grid; line-height: 1.2; }
+.wer__text b { font-family: var(--display); font-weight: 800; font-stretch: 125%; letter-spacing: .16em; font-size: 13px; color: var(--text); text-transform: uppercase; }
+.wer__text span { font-size: 13px; color: var(--gold-soft); }
+.hero__wo { margin: 0 auto; max-width: 46ch; font-size: clamp(15px, 1.3vw, 18px); line-height: 1.5; color: var(--cream); text-shadow: 0 2px 18px rgba(0,0,0,.9); }
+.hero__wo > span { display: block; text-wrap: balance; }
+.hero__boost { margin-top: 2px; font-size: .92em; color: var(--gold-soft); }
+.hero .title { margin-bottom: var(--sp-4); }
+.hero__aktionen { margin-top: var(--sp-5); }
+.hero__mehr { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 var(--sp-2); margin: var(--sp-3) 0 0; font-size: 15px; color: var(--muted); }
+.hero__mehr a { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 var(--sp-2); color: var(--gold-soft); text-underline-offset: 4px; text-shadow: 0 2px 14px rgba(0,0,0,.9); }
+.hero .hero__text { margin-top: clamp(28px, 5vh, 48px); }
+@media (max-width: 480px) {
+  .chapter--hero { padding-top: 92px; }
+  .hero__vor { margin-bottom: var(--sp-2); font-size: 19px; }
+  .hero .title--xl { font-size: clamp(46px, 14vw, 60px); }
+  .hero__aktionen { gap: 10px; }
+  .hero__aktionen .btn { height: 50px; }
+}
+/* Handy quer: wenig Höhe, deshalb Titel kleiner, Knöpfe nebeneinander */
+@media (max-height: 520px) and (min-width: 600px) {
+  .chapter--hero { padding-top: 84px; }
+  .wer { margin-bottom: var(--sp-3); }
+  .hero__vor { margin-bottom: 4px; font-size: 17px; }
+  .hero .title--xl { font-size: 54px; }
+  .hero__aktionen { margin-top: var(--sp-3); }
+}
