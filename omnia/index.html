@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>OMNIA</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0a1e0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="OMNIA">
+<style>
+  :root { --bg:#0a1e0e; --gold:#d8b25a; --text:#efe6cc; --muted:#a9b6a3; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--text);
+    font:17px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif; }
+  main { min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:32px 24px; text-align:center; gap:20px;
+    background:radial-gradient(circle at 50% 35%, #163a1d 0%, var(--bg) 60%); }
+  img { width:132px; height:132px; border-radius:30px; box-shadow:0 12px 40px rgba(0,0,0,.5); }
+  h1 { margin:0; font-size:34px; letter-spacing:.18em; font-weight:600; color:var(--gold); }
+  p { margin:0; color:var(--muted); max-width:340px; }
+  a.knopf, button { display:block; width:100%; max-width:320px; padding:15px 20px; border-radius:14px; border:0;
+    font:600 17px/1.2 inherit; font-family:inherit; text-decoration:none; cursor:pointer; }
+  a.knopf { background:var(--gold); color:#1b1606; }
+  button { background:transparent; color:var(--gold); border:1px solid rgba(216,178,90,.5); }
+  ol { text-align:left; color:var(--text); max-width:320px; padding-left:22px; margin:0; }
+  li { margin:6px 0; }
+  .leise { font-size:14px; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<main>
+  <img src="icon-512.png" alt="OMNIA Logo">
+  <h1>OMNIA</h1>
+  <p id="lade" hidden>OMNIA öffnet sich …</p>
+  <a class="knopf" id="oeffnen" href="https://claude.ai/artifact/Ybf6qEZ8mvVn9w3HH5pejU">OMNIA öffnen</a>
+  <button id="installieren" hidden>Als App auf den Startbildschirm</button>
+  <div id="anleitung">
+    <p>So kommt das Logo auf dein Handy:</p>
+    <ol>
+      <li>Oben rechts auf die <b>drei Punkte</b> tippen.</li>
+      <li><b>„Zum Startbildschirm hinzufügen“</b> oder <b>„App installieren“</b> wählen.</li>
+      <li><b>„Installieren“</b> tippen.</li>
+    </ol>
+  </div>
+  <p class="leise">Danach öffnest du OMNIA mit dem Logo.</p>
+</main>
+<script>
+  var ZIEL = 'https://claude.ai/artifact/Ybf6qEZ8mvVn9w3HH5pejU';
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
+  var alsApp = window.matchMedia('(display-mode: standalone)').matches ||
+               window.navigator.standalone === true ||
+               /[?&]quelle=app/.test(location.search);
+  if (alsApp) {
+    document.getElementById('lade').hidden = false;
+    document.getElementById('anleitung').hidden = true;
+    document.querySelector('.leise').hidden = true;
+    location.replace(ZIEL);
+  }
+  var angebot = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); angebot = e;
+    document.getElementById('installieren').hidden = false;
+  });
+  document.getElementById('installieren').addEventListener('click', function () {
+    if (!angebot) return;
+    angebot.prompt();
+    angebot.userChoice.finally(function () { angebot = null; document.getElementById('installieren').hidden = true; });
+  });
+  window.addEventListener('appinstalled', function () {
+    document.getElementById('installieren').hidden = true;
+    document.getElementById('anleitung').innerHTML = '<p>Fertig. Das OMNIA-Logo ist jetzt auf deinem Startbildschirm.</p>';
+  });
+</script>
+</body>
+</html>
