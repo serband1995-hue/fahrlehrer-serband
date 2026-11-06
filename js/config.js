@@ -99,7 +99,7 @@ export const CONFIG = {
   ],
 
   // Sprachen der Fahr-Akademie (App-Tour, Kapitel IV). Neue Sprache einfach anhängen.
-  // Sprachen der Fahr-Akademie, Namen wie in der App (Stand 02.10.2026: Deutsch + 17).
+  // Sprachen der Fahr-Akademie, Namen wie in der App (Stand 06.11.2026: Deutsch + 29).
   // Neue Sprache in der Akademie = hier eine Zeile ergänzen; Zahl und Liste auf der Seite folgen.
   sprachen: [
     { code: "de", name: "Deutsch" }, { code: "tr", name: "Türkçe" }, { code: "en", name: "English" },
@@ -107,7 +107,11 @@ export const CONFIG = {
     { code: "sr", name: "Srpski" }, { code: "ckb", name: "کوردی (سۆرانی)" }, { code: "kmr", name: "Kurdî (Kurmancî)" },
     { code: "hi", name: "हिन्दी" }, { code: "ur", name: "اردو" }, { code: "vi", name: "Tiếng Việt" },
     { code: "rif", name: "Tarifit" }, { code: "fa", name: "فارسی" }, { code: "ps", name: "پښتو" },
-    { code: "el", name: "Ελληνικά" }, { code: "am", name: "አማርኛ" }, { code: "ti", name: "ትግርኛ" }
+    { code: "el", name: "Ελληνικά" }, { code: "am", name: "አማርኛ" }, { code: "ti", name: "ትግርኛ" },
+    { code: "ro", name: "Română" }, { code: "pl", name: "Polski" }, { code: "hr", name: "Hrvatski" },
+    { code: "bs", name: "Bosanski" }, { code: "sq", name: "Shqip" }, { code: "uk", name: "Українська" },
+    { code: "bg", name: "Български" }, { code: "mk", name: "Македонски" }, { code: "bn", name: "বাংলা" },
+    { code: "it", name: "Italiano" }, { code: "pt", name: "Português" }, { code: "hu", name: "Magyar" }
   ],
 
   // Bestenliste des Reaktionstests (Supabase-Projekt „fahr-akademie“, getrennte Tabelle).
